@@ -1,0 +1,115 @@
+
+body {
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+  }
+  
+  .container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    font-size: 1.5rem; /* Rétrécir la taille de la police */
+    text-align: center; /* Centrer le texte */
+    margin-top: 1rem; /* Ajouter un espace au-dessus du titre */
+  }
+  #config-title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+  }
+  input[type="password"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+  }
+  
+  input[type="submit"] {
+    background-color: #3e8e41;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  input[type="submit"]:hover {
+    background-color: #357c38;
+  }
+  
+  .error-message {
+    color: #d9534f;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  /* Encadrement des champs d'entrée */
+  input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 8px;
+    transition: border-color 0.3s ease-in-out;
+    
+  }
+  input[type="password"] {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 8px;
+    transition: border-color 0.3s ease-in-out;
+  }
+  
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border-color: #3e8e41;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    width: 80%; /* Ajuster la largeur selon vos besoins */
+    max-width: 600px; /* Limiter la largeur du formulaire */
+    margin: 0 auto; /* Centrer le formulaire */
+    margin-bottom: 2rem;
+  }
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px; /* Ajustez la largeur maximale selon vos besoins */
+    margin: 0 auto; /* Centrer le formulaire horizontalement */
+  }
+
+  

@@ -1,0 +1,15 @@
+# Bloquer l'accès direct à certains fichiers
+<Files "config.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+<Files "connexion_bdd.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Rediriger les requêtes vers le fichier sans extension .php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
