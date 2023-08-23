@@ -1,18 +1,18 @@
 <?php
 session_start();
-$configFilePath = '..\config.php';
+$configFilePath = '../config.php';
 
 if (!file_exists($configFilePath)) {
-    header('Location: ..\setdb');
+    header('Location: ../setdb');
     exit();
 }
 
 // Si l'utilisateur est déjà connecté, on le redirige vers la page d'accueil
 if (isset($_SESSION['user_id'])) {
-    header('Location: ..\settings');
+    header('Location: ../settings');
     exit();
 }
-require_once '..\connexion_bdd.php';
+require_once '../connexion_bdd.php';
 $sql = "SELECT COUNT(*) as count FROM users";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Vérification que l'adresse email n'est pas déjà utilisée
-    require_once '..\connexion_bdd.php';
+    require_once '../connexion_bdd.php';
 
     $query = "SELECT id FROM users WHERE email = :email";
     $stmt = $pdo->prepare($query);
@@ -88,7 +88,7 @@ if (isset($_POST['submit'])) {
 <head>
   <meta charset="UTF-8">
   <title>Inscription</title>
-  <link rel="stylesheet" type="text/css" href="..\css\register.css">
+  <link rel="stylesheet" type="text/css" href="../css/register.css">
 </head>
 <body>
   <div class="container">

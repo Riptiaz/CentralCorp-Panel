@@ -1,12 +1,12 @@
 <?php
-$configFilePath = '..\config.php';
+$configFilePath = '../config.php';
 
 if (!file_exists($configFilePath)) {
-    header('Location: ..\setdb');
+    header('Location: ../setdb');
     exit();
 }
 // Connexion à la base de données et autres configurations...
-require_once '..\connexion_bdd.php';
+require_once '../connexion_bdd.php';
 // Récupérer les paramètres de la base de données
 $sql = "SELECT * FROM options";
 $stmt = $pdo->prepare($sql);

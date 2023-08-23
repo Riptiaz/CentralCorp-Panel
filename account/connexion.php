@@ -1,17 +1,17 @@
 <?php
 session_start();
-$configFilePath = '..\config.php';
+$configFilePath = '../config.php';
 
 if (!file_exists($configFilePath)) {
-    header('Location: ..\setdb');
+    header('Location: ../setdb');
     exit();
 }
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: ..\settings');
+    header('Location: ../settings');
     exit();
 }
-require_once '..\connexion_bdd.php';
+require_once '../connexion_bdd.php';
 $sql = "SELECT COUNT(*) as count FROM users";
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Vérification des identifiants dans la base de données
     if (empty($errors)) {
         try {
-            require_once '..\connexion_bdd.php';
+            require_once '../connexion_bdd.php';
 
 
             $sth = $pdo->prepare("SELECT id, password FROM users WHERE email = :email");
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Ouverture de la session et redirection vers la page d'accueil
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user'] = $user;
-                    header('Location: ..\settings');
+                    header('Location: ../settings');
                     exit();
                 }
             }
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Connexion</title>
-    <link rel="stylesheet" href="..\login.css">
+    <link rel="stylesheet" href="../css/login.css">
 </head>
 
 <body>
