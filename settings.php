@@ -23,7 +23,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 // Traiter les soumissions de formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["submit_maintenance"])) {
+    if (isset($_POST["submit_toggle_dark_mode"])) {
+        if (isset($_SESSION["dark_mode"])) {
+            unset($_SESSION["dark_mode"]);
+        } else {
+            $_SESSION["dark_mode"] = true;
+        }
+        header("Location: settings");
+        exit();
+    } elseif (isset($_POST["submit_maintenance"])) {
         $maintenance = isset($_POST["maintenance"]) ? 1 : 0;
         $sql = "UPDATE options SET maintenance = ?";
         $stmt = $pdo->prepare($sql);
@@ -34,7 +42,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':maintenance_message', $maintenance_message, PDO::PARAM_STR); // Liaison de la valeur
         $stmt->execute();
-    } elseif (isset($_POST["submit_mods"])) {
+    } elseif (isset($_POST["submit_azuriom"])) {
+        $azuriom = $_POST["azuriom"];
+        $sql = "UPDATE options SET azuriom = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$azuriom]);
+    }elseif (isset($_POST["submit_ftp_url"])) {
+        $ftp_url = $_POST["ftp_url"];
+        $sql = "UPDATE options SET ftp_url = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$ftp_url]);
+    }elseif (isset($_POST["submit_mods"])) {
         $mods = isset($_POST["mods_enabled"]) ? 1 : 0;
         $sql = "UPDATE options SET mods_enabled = ?";
         $stmt = $pdo->prepare($sql);
@@ -97,7 +115,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET money = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$money]);
-    }
+    } elseif (isset($_POST["submit_server_img"])) {
+        $server_img = $_POST["server_img"];
+        $sql = "UPDATE options SET server_img = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$server_img]);
+    } elseif (isset($_POST["submit_splash_info"])) {
+        $splash = $_POST["splash"];
+        $splash_author = $_POST["splash_author"];
+        
+        $sql = "UPDATE options SET splash = ?, splash_author = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$splash, $splash_author]);
+    
+}
     
 
 
@@ -117,15 +148,32 @@ if ($stmt->rowCount() > 0) {
   <meta charset="UTF-8">
   <title>Paramètres du launcher</title>
   <link rel="stylesheet" href="css/style.css">
+<?php
+if (isset($_SESSION["dark_mode"])) {
+    echo '<link rel="stylesheet" href="css/style-dark.css">';
+}
+?>
 </head>
 <body>
   <div class="container">
     <h1>Paramètres du launcher</h1>
-    
+    <div class="top-bar">
     <form method="post">
         <input type="hidden" name="logout" value="1"> <!-- Champ caché pour indiquer la déconnexion -->
         <input type="submit" value="Déconnexion">
     </form>
+    <form method="post">
+          <label>
+            <input type="checkbox" name="toggle_dark_mode" <?php if (isset($_SESSION["dark_mode"])) echo "checked"; ?>>
+            <span>Mode sombre</span>
+          </label>
+          <span> <!-- Espace pour le style du texte -->
+          </span>
+          <input type="submit" name="submit_toggle_dark_mode" value="Enregistrer">
+</div>
+</form>
+
+
 
 </div>
 </body>
@@ -138,6 +186,16 @@ if ($stmt->rowCount() > 0) {
     <label>Message de Maintenance :</label>
     <input type="text" name="maintenance_message" value="<?php echo $row["maintenance_message"]; ?>">
     <input type="submit" name="submit_maintenance_message" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>URL du site Azuriom:</label>
+    <input type="text" name="azuriom" value="<?php echo $row["azuriom"]; ?>">
+    <input type="submit" name="submit_azuriom" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>URL du FTP:</label>
+    <input type="text" name="ftp_url" value="<?php echo $row["ftp_url"]; ?>">
+    <input type="submit" name="submit_ftp_url" value="Enregistrer">
 </form>
 <form method="post" action="settings">
     <label>Version de Minecraft :</label>
@@ -158,6 +216,20 @@ if ($stmt->rowCount() > 0) {
     <label>Version Préembarquée de Java :</label>
     <input type="checkbox" name="embedded_java" <?php if ($row["embedded_java"] == 1) echo "checked"; ?>>
     <input type="submit" name="submit_embedded_java" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>Image du statut de serveur:</label>
+    <input type="text" name="server_img" value="<?php echo $row["server_img"]; ?>">
+    <input type="submit" name="submit_server_img" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>Message splash:</label>
+    <input type="text" name="splash" value="<?php echo $row["splash"]; ?>"><br>
+    
+    <label>Auteur du splash:</label>
+    <input type="text" name="splash_author" value="<?php echo $row["splash_author"]; ?>"><br>
+
+    <input type="submit" name="submit_splash_info" value="Enregistrer">
 </form>
 <form method="post" action="settings">
     <label>Affichage du rôle :</label>

@@ -37,15 +37,19 @@ $data = [
     "changelog_version" => $options["changelog_version"],
     "changelog_new" => $options["changelog_message"],
     "online" => "true",
-    "server_img" => "https://conflictura.site/storage/img/logo2.png",
+    "server_img" => $options["server_img"],
     "ignored" => ["crash-reports", "logs", "resourcepacks", "resources", "saves", "shaderpacks", "options.txt", "optionsof.txt"],
     "game_args" => [],
     "money" => (bool) $options["money"],
     "role" => (bool) $options["role"],
+    "splash" => $options["splash"],
+    "splash_author" => $options["splash_author"],
+    "azauth" => $options["azuriom"],
+    "ftp_url" => $options["ftp_url"],
     
 ];
 
 // Envoyer la réponse JSON
 header('Content-Type: application/json');
-echo json_encode($data, JSON_PRETTY_PRINT);
+echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ?>

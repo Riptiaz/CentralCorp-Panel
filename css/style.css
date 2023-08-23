@@ -1,5 +1,4 @@
 /* style.css */
-
 :root {
   --couleur-principale: #0c0d0e;
   --couleur-secondaire: #3e8e41;
@@ -96,3 +95,19 @@ textarea[name="changelog_message"] {
   font-size: 0.8rem;
   color: black;
 }
+.top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 10px;
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
+}
+
+.top-bar form {
+  margin-bottom: 5px;
+}
+
+
+
