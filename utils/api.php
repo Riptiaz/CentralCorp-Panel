@@ -46,6 +46,16 @@ $data = [
     "splash_author" => $options["splash_author"],
     "azauth" => $options["azuriom"],
     "ftp_url" => $options["ftp_url"],
+    "rpc_activation" => (bool) $options["rpc_activation"],
+    "rpc_id" => $options["rpc_id"],
+    "rpc_details" => $options["rpc_details"],
+    "rpc_state" => $options["rpc_state"],
+    "rpc_large_text" => $options["rpc_large_text"],
+    "rpc_small_text" => $options["rpc_small_text"],
+    "rpc_button1" => $options["rpc_button1"],
+    "rpc_button1_url" => $options["rpc_button1_url"],
+    "rpc_button2" => $options["rpc_button2"],
+    "rpc_button2_url" => $options["rpc_button2_url"],
     
 ];
 

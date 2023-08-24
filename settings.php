@@ -95,7 +95,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$loader_type, $loader_build_version, $loader_activation]);
         
-    } elseif (isset($_POST["submit_changelog_version"])) {
+    }elseif (isset($_POST["submit_rpc_settings"])) {
+        $rpc_id = $_POST["rpc_id"];
+        $rpc_details = $_POST["rpc_details"];
+        $rpc_state = $_POST["rpc_state"];
+        $rpc_large_text = $_POST["rpc_large_text"];
+        $rpc_small_text = $_POST["rpc_small_text"];
+        $rpc_activation = isset($_POST["rpc_activation"]) ? 1 : 0;
+        $rpc_button1 = $_POST["rpc_button1"];
+        $rpc_button1_url = $_POST["rpc_button1_url"];
+        $rpc_button2 = $_POST["rpc_button2"];
+        $rpc_button2_url = $_POST["rpc_button2_url"];
+        
+        $sql = "UPDATE options SET rpc_id = ?, rpc_details = ?, rpc_state = ?, rpc_large_text = ?, rpc_small_text = ?, rpc_activation = ?, rpc_button1 = ?, rpc_button1_url = ?, rpc_button2 = ?, rpc_button2_url = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$rpc_id, $rpc_details, $rpc_state, $rpc_large_text, $rpc_small_text, $rpc_activation, $rpc_button1, $rpc_button1_url, $rpc_button2, $rpc_button2_url]);
+    
+    }elseif (isset($_POST["submit_changelog_version"])) {
         $changelog_version = $_POST["changelog_version"];
         $sql = "UPDATE options SET changelog_version = ?";
         $stmt = $pdo->prepare($sql);
@@ -276,6 +292,39 @@ if (isset($_SESSION["dark_mode"])) {
     <input type="checkbox" name="loader_activation" <?php if ($row["loader_activation"] == 1) echo "checked"; ?>>  
     
     <input type="submit" name="submit_loader_settings" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>ID Client pour le RPC</label>
+    <input type="text" name="rpc_id" value="<?php echo $row["rpc_id"]; ?>"><br>
+
+    <label>Message de détails</label>
+    <input type="text" name="rpc_details" value="<?php echo $row["rpc_details"]; ?>"><br>
+
+    <label>Message de l'état</label>
+    <input type="text" name="rpc_state" value="<?php echo $row["rpc_state"]; ?>"><br>
+
+    <label>Message pour la grande image</label>
+    <input type="text" name="rpc_large_text" value="<?php echo $row["rpc_large_text"]; ?>"><br>
+
+    <label>Message pour la petite image</label>
+    <input type="text" name="rpc_small_text" value="<?php echo $row["rpc_small_text"]; ?>"><br>
+
+    <label>Nom du 1er bouton</label>
+    <input type="text" name="rpc_button1" value="<?php echo $row["rpc_button1"]; ?>"><br>
+
+    <label>URL du 1er bouton</label>
+    <input type="text" name="rpc_button1_url" value="<?php echo $row["rpc_button1_url"]; ?>"><br>
+
+    <label>Nom du 2ème bouton</label>
+    <input type="text" name="rpc_button2" value="<?php echo $row["rpc_button2"]; ?>"><br>
+
+    <label>URL du 2ème bouton</label>
+    <input type="text" name="rpc_button2_url" value="<?php echo $row["rpc_button2_url"]; ?>"><br>
+    
+    <label>Activation du RPC :</label>
+    <input type="checkbox" name="rpc_activation" <?php if ($row["rpc_activation"] == 1) echo "checked"; ?>>  
+    
+    <input type="submit" name="submit_rpc_settings" value="Enregistrer">
 </form>
 
 <form method="post" action="settings">
