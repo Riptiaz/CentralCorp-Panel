@@ -6,7 +6,6 @@ if (!file_exists($configFilePath)) {
     header('Location: setdb');
     exit();
 }
-// Traitement du bouton déconnexion
 if (isset($_POST['logout'])) {
     session_unset();
     session_destroy();
@@ -16,12 +15,10 @@ if (isset($_POST['logout'])) {
 
 require_once 'connexion_bdd.php';
 
-// Si l'utilisateur n'est pas connecté, on le redirige vers la page de connexion
 if (!isset($_SESSION['user_id'])) {
     header('Location: account/connexion');
     exit();
 }
-// Traiter les soumissions de formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["submit_toggle_dark_mode"])) {
         if (isset($_SESSION["dark_mode"])) {
@@ -31,16 +28,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         header("Location: settings");
         exit();
-    } elseif (isset($_POST["submit_maintenance"])) {
+    } elseif (isset($_POST["submit_roles_settings"])) {
+        $roles = array();
+    
+        for ($i = 1; $i <= 8; $i++) {
+            $roleName = $_POST["role" . $i . "_name"];
+            $backgroundUrl = $_POST["role" . $i . "_background"];
+    
+            if (!empty($roleName)) {
+
+                $sql = "INSERT INTO roles (id, role_name, role_background) VALUES (:id, :role_name, :role_background)
+                        ON DUPLICATE KEY UPDATE role_name = :role_name, role_background = :role_background";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':id', $i);
+                $stmt->bindParam(':role_name', $roleName);
+                $stmt->bindParam(':role_background', $backgroundUrl);
+                $stmt->execute();
+            }
+        }
+    }elseif (isset($_POST["submit_maintenance"])) {
         $maintenance = isset($_POST["maintenance"]) ? 1 : 0;
         $sql = "UPDATE options SET maintenance = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$maintenance]);
     } elseif (isset($_POST["submit_maintenance_message"])) {
         $maintenance_message = $_POST["maintenance_message"];
-        $sql = "UPDATE options SET maintenance_message = :maintenance_message"; // Utilisation d'un named placeholder
+        $sql = "UPDATE options SET maintenance_message = :maintenance_message";
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':maintenance_message', $maintenance_message, PDO::PARAM_STR); // Liaison de la valeur
+        $stmt->bindValue(':maintenance_message', $maintenance_message, PDO::PARAM_STR);
         $stmt->execute();
     } elseif (isset($_POST["submit_azuriom"])) {
         $azuriom = $_POST["azuriom"];
@@ -144,12 +159,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$splash, $splash_author]);
     
-}
+    }elseif (isset($_POST["submit_whitelist_users"])) {
+        $whitelistUsers = $_POST["whitelist_users"];
+        
+        $usernamesArray = explode(',', $whitelistUsers);
+        
+        $usernamesArray = array_map('trim', $usernamesArray);
+        
+        $whitelistUsers = implode(',', $usernamesArray);
+        
+        $sqlDelete = "DELETE FROM whitelist";
+        $pdo->exec($sqlDelete);
+        
+        $sqlInsert = "INSERT INTO whitelist (users) VALUES (:users)";
+        $stmt = $pdo->prepare($sqlInsert);
+        
+        foreach ($usernamesArray as $username) {
+            $stmt->bindParam(':users', $username);
+            $stmt->execute();
+        }
+    }elseif (isset($_POST["submit_ignored_folder_data"])) {
+        $ignored_folder = $_POST["ignored_folder"];
+        
+        $folderArray = explode(',', $ignored_folder);
+        
+        $folderArray = array_map('trim', $folderArray);
+        
+        $ignored_folder = implode(',', $folderArray);
+        
+        $sqlDelete = "DELETE FROM ignored_folders";
+        $pdo->exec($sqlDelete);
+        
+        $sqlInsert = "INSERT INTO ignored_folders (folder_name) VALUES (:folder_name)";
+        $stmt = $pdo->prepare($sqlInsert);
+        
+        foreach ($folderArray as $folder) {
+            $stmt->bindParam(':folder_name', $folder);
+            $stmt->execute();
+        }
+    }elseif (isset($_POST["submit_whitelist"])) {
+        $whitelist = isset($_POST["whitelist_activation"]) ? 1 : 0;
+        $sql = "UPDATE options SET whitelist_activation = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$whitelist]);
+    }    
     
-
-
 }
-// Charger les options depuis la base de données
 $sql = "SELECT * FROM options";
 $stmt = $pdo->query($sql);
 
@@ -157,6 +212,7 @@ if ($stmt->rowCount() > 0) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -175,7 +231,7 @@ if (isset($_SESSION["dark_mode"])) {
     <h1>Paramètres du launcher</h1>
     <div class="top-bar">
     <form method="post">
-        <input type="hidden" name="logout" value="1"> <!-- Champ caché pour indiquer la déconnexion -->
+        <input type="hidden" name="logout" value="1">
         <input type="submit" value="Déconnexion">
     </form>
     <form method="post">
@@ -183,7 +239,7 @@ if (isset($_SESSION["dark_mode"])) {
             <input type="checkbox" name="toggle_dark_mode" <?php if (isset($_SESSION["dark_mode"])) echo "checked"; ?>>
             <span>Mode sombre</span>
           </label>
-          <span> <!-- Espace pour le style du texte -->
+          <span>
           </span>
           <input type="submit" name="submit_toggle_dark_mode" value="Enregistrer">
 </div>
@@ -336,6 +392,69 @@ if (isset($_SESSION["dark_mode"])) {
     <label>Message du Changelog :</label><br>
     <textarea name="changelog_message" rows="4" cols="50"><?php echo str_replace('<br>', "\n", $row["changelog_message"]); ?></textarea>
     <input type="submit" name="submit_changelog_message" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>Whitelist :</label>
+    <input type="checkbox" name="whitelist_activation" <?php if ($row["whitelist_activation"] == 1) echo "checked"; ?>>
+    <input type="submit" name="submit_whitelist" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>Noms d'utilisateurs (séparés par des virgules) :</label>
+    <input type="text" name="whitelist_users" value="<?php
+     $sql = "SELECT users FROM whitelist"; 
+     $stmt = $pdo->query($sql);
+ 
+     $userNames = array();
+ 
+     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+         $userNames[] = $row["users"];
+     }
+     echo implode(', ', $userNames);
+    ?>">
+    <input type="submit" name="submit_whitelist_users" value="Enregistrer">
+</form>
+<form method="post" action="settings">
+    <label>Dossiers ignorés (séparés par des virgules) :</label>
+    <input type="text" name="ignored_folder" value="<?php
+     $sql = "SELECT folder_name FROM ignored_folders"; 
+     $stmt = $pdo->query($sql);
+     $folders = array();
+ 
+     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+         $folders[] = $row["folder_name"];
+     }
+     echo implode(', ', $folders);
+    ?>">
+    <input type="submit" name="submit_ignored_folder_data" value="Enregistrer">
+</form>
+<form method="post" action="">
+    <?php
+    $sql = "SELECT * FROM roles";
+    $stmt = $pdo->query($sql);
+
+    $roleData = array();
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $roleData[$row['id']] = $row;
+    }
+    for ($i = 1; $i <= 8; $i++) {
+        $roleName = "";
+        $backgroundUrl = "";
+        if (isset($roleData[$i])) {
+            $roleName = $roleData[$i]['role_name'];
+            $backgroundUrl = $roleData[$i]['role_background'];
+        }
+
+        echo '<div class="role-box">';
+        echo '<label for="role' . $i . '_name">Nom du rôle ' . $i . ':</label>';
+        echo '<input type="text" id="role' . $i . '_name" name="role' . $i . '_name" value="' . $roleName . '">';
+
+        echo '<label for="role' . $i . '_background">URL de l\'image de fond du rôle ' . $i . ':</label>';
+        echo '<input type="text" id="role' . $i . '_background" name="role' . $i . '_background" value="' . $backgroundUrl . '">';
+        echo '</div>';
+    }
+    ?>
+    <input type="submit" name="submit_roles_settings" value="Enregistrer">
 </form>
 <div class="footer">Créé avec ❤️ par Riptiaz</div>
 </body>

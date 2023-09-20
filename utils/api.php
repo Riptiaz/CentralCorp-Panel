@@ -5,16 +5,15 @@ if (!file_exists($configFilePath)) {
     header('Location: ../setdb');
     exit();
 }
-// Connexion à la base de données et autres configurations...
+
 require_once '../connexion_bdd.php';
-// Récupérer les paramètres de la base de données
+
 $sql = "SELECT * FROM options";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 
 $options = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Formater les paramètres en tant que tableau associatif
 $data = [
     "maintenance" => (bool) $options["maintenance"],
     "maintenance_message" => $options["maintenance_message"],
@@ -38,7 +37,6 @@ $data = [
     "changelog_new" => $options["changelog_message"],
     "online" => "true",
     "server_img" => $options["server_img"],
-    "ignored" => ["crash-reports", "logs", "resourcepacks", "resources", "saves", "shaderpacks", "options.txt", "optionsof.txt"],
     "game_args" => [],
     "money" => (bool) $options["money"],
     "role" => (bool) $options["role"],
@@ -56,10 +54,51 @@ $data = [
     "rpc_button1_url" => $options["rpc_button1_url"],
     "rpc_button2" => $options["rpc_button2"],
     "rpc_button2_url" => $options["rpc_button2_url"],
-    
+    "whitelist_activate" => (bool) $options["whitelist_activation"],      
 ];
 
-// Envoyer la réponse JSON
+$sqlRoles = "SELECT * FROM roles";
+$stmtRoles = $pdo->query($sqlRoles);
+
+$rolesData = [];
+
+while ($rowRole = $stmtRoles->fetch(PDO::FETCH_ASSOC)) {
+
+    $roleId = $rowRole['id'];
+    $roleName = $rowRole['role_name'];
+    $roleBackground = $rowRole['role_background'];
+
+
+    $rolesData["role" . $roleId] = [
+        "name" => $roleName,
+        "background" => $roleBackground
+    ];
+}
+
+$data["role_data"] = $rolesData;
+
+$sqlIgnored = "SELECT folder_name FROM ignored_folders";
+$stmtIgnored = $pdo->query($sqlIgnored);
+
+$ignoredFolders = [];
+
+while ($rowIgnored = $stmtIgnored->fetch(PDO::FETCH_ASSOC)) {
+    $ignoredFolders[] = $rowIgnored['folder_name'];
+}
+
+$data["ignored"] = $ignoredFolders;
+
+$sqlWhitelist = "SELECT users FROM whitelist";
+$stmtWhitelist = $pdo->query($sqlWhitelist);
+
+$whitelistUsers = [];
+
+while ($rowWhitelist = $stmtWhitelist->fetch(PDO::FETCH_ASSOC)) {
+    $whitelistUsers[] = $rowWhitelist['users'];
+}
+
+$data["whitelist"] = $whitelistUsers;
+
 header('Content-Type: application/json');
 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ?>

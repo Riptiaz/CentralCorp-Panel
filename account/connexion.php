@@ -18,6 +18,11 @@ $sql = "SELECT COUNT(*) as count FROM users";
 
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $comptesExistants = $row['count'] > 0;
+            
+        if (!$comptesExistants) {
+                header('Location: register.php'); // Remplacez par l'URL de votre page d'inscription
+                exit();
+            }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Récupération des données du formulaire
