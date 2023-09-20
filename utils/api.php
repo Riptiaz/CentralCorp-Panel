@@ -43,7 +43,6 @@ $data = [
     "splash" => $options["splash"],
     "splash_author" => $options["splash_author"],
     "azauth" => $options["azuriom"],
-    "ftp_url" => $options["ftp_url"],
     "rpc_activation" => (bool) $options["rpc_activation"],
     "rpc_id" => $options["rpc_id"],
     "rpc_details" => $options["rpc_details"],

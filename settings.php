@@ -62,11 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET azuriom = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$azuriom]);
-    }elseif (isset($_POST["submit_ftp_url"])) {
-        $ftp_url = $_POST["ftp_url"];
-        $sql = "UPDATE options SET ftp_url = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$ftp_url]);
     }elseif (isset($_POST["submit_mods"])) {
         $mods = isset($_POST["mods_enabled"]) ? 1 : 0;
         $sql = "UPDATE options SET mods_enabled = ?";
@@ -263,11 +258,6 @@ if (isset($_SESSION["dark_mode"])) {
     <label>URL du site Azuriom:</label>
     <input type="text" name="azuriom" value="<?php echo $row["azuriom"]; ?>">
     <input type="submit" name="submit_azuriom" value="Enregistrer">
-</form>
-<form method="post" action="settings">
-    <label>URL du FTP:</label>
-    <input type="text" name="ftp_url" value="<?php echo $row["ftp_url"]; ?>">
-    <input type="submit" name="submit_ftp_url" value="Enregistrer">
 </form>
 <form method="post" action="settings">
     <label>Version de Minecraft :</label>
