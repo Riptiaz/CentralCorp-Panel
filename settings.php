@@ -1,11 +1,11 @@
 <?php
 session_start();
 $configFilePath = 'config.php';
-require_once 'connexion_bdd.php';
 if (!file_exists($configFilePath)) {
     header('Location: setdb');
     exit();
 }
+require_once 'connexion_bdd.php';
 require('auth.php');
 if (isset($_POST['logout'])) {
     session_unset();

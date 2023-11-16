@@ -1,13 +1,11 @@
 <?php
 session_start();
 $configFilePath = '../config.php';
-require_once '../connexion_bdd.php';
-
 if (!file_exists($configFilePath)) {
     header('Location: ../setdb');
     exit();
 }
-
+require_once '../connexion_bdd.php';
 if (isset($_SESSION['user_token'])) {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE token = :token");
     $stmt->bindParam(':token', $_SESSION['user_token']);
