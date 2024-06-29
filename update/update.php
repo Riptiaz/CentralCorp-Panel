@@ -75,11 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();
 
+    echo "Version actuelle : $currentVersion<br>";
+    echo "Dernière version : $latestVersion<br>";
+
     if (isNewVersionAvailable($currentVersion, $latestVersion)) {
+        echo "Nouvelle version disponible. Mise à jour en cours...<br>";
+
         if (updateFiles()) {
             echo "Fichiers mis à jour avec succès.<br>";
-
-            require_once 'connexion_bdd.php';
 
             updateDatabase($pdo);
 
