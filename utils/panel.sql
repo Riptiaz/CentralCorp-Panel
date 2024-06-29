@@ -112,7 +112,7 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
-(1, 'Membre', 'your image url'),
+(1, 'Membre', 'your img url'),
 (2, 'Fondateur', 'your image url'),
 (3, 'Dev', 'your image url'),
 (4, 'Modo', 'your image url'),

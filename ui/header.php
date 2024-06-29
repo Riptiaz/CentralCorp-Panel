@@ -59,6 +59,9 @@
                             <input type="file" id="jsonFileInput" name="json_file" class="hidden" accept=".json" required>
                         </label>
                     </form>
+                    <form method="post" action="update/update.php">
+                        <button class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded" type="submit" name="update_button">Update</button>
+                    </form>
                 </div>
             </div>
         </div>
