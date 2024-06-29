@@ -1,6 +1,6 @@
 <?php
 session_start();
-$configFilePath = '../config.php';
+$configFilePath = '../conn.php';
 if (!file_exists($configFilePath)) {
     header('Location: ../setdb');
     exit();

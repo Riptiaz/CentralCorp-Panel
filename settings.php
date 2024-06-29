@@ -1,12 +1,12 @@
 <?php
 session_start();
-$configFilePath = 'config.php';
+$configFilePath = './conn.php';
 if (!file_exists($configFilePath)) {
     header('Location: setdb');
     exit();
 }
-require_once 'connexion_bdd.php';
-require('auth.php');
+require_once './connexion_bdd.php';
+require('./auth.php');
 if (isset($_POST['logout'])) {
     session_unset();
     session_destroy();
@@ -186,365 +186,66 @@ if ($stmt->rowCount() > 0) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 ?>
-<html lang="fr" data-bs-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Panel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand ml-2">Panel</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav" >
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Général</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#server-info-settings">Serveur</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#loader-settings">Loader</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#rpc-settings">Discord RPC</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#splash-settings">Splash</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#changelog-settings">Changelog</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#maintenance-settings">Maintenance</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#whitelist-settings">Whitelist</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#ignored-folders-settings">Dossiers Ignorés</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#roles-settings">Fond d'écran par rôle</a>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-lg-0 ml-auto" method="post" action="">
-            <button class="btn btn-outline-light" type="submit" name="logout">Déconnexion</button>
-            <a class="btn btn-outline-light" name="export" href="./utils/export">Exporter</a>
-        </form>
-        <form id="importForm" class="form-inline my-2 my-lg-0 ml-auto" method="post" action="utils/import.php" enctype="multipart/form-data">
-    <label class="btn btn-outline-light">
-        Importer
-        <input type="file" id="jsonFileInput" name="json_file" style="display:none;" accept=".json" required>
-    </label>
-</form>
+<?php
+require_once './ui/header.php';
+?>
+<style>
+    
+    .scroll-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 10;
+    }
+  </style>
+   <a href="#" class="scroll-to-top bg-gray-900 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+    </svg>
+  </a>
 
-<script>
-    document.getElementById('jsonFileInput').addEventListener('change', function() {
-        document.getElementById('importForm').submit();
-    });
-</script>
-        </div>
-    </nav>
-    <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-12">
-            <form method="post" action="settings#general-settings">
-                <div id="general-settings">
-                    <h2>Général</h2>
-                    <div class="form-group">
-                        <label for="azuriom">URL du site Azuriom :</label>
-                        <input type="text" class="form-control" id="azuriom" name="azuriom" value="<?php echo $row["azuriom"]; ?>">
-                    </div>
-                </div>
+<?php
+require_once './function/main.php';
+?>
+<?php
+require_once './function/serveur.php';
+?>
+<?php
+require_once './function/splash.php';
+?>
 
-                <div class="mt-3">
-                    <label class="mr-2">Mods :</label>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" name="mods_enabled" <?php if ($row["mods_enabled"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label">Activer</label>
-                    </div>
-                </div>
 
-                <div class="mt-3">
-                    <label class="mr-2">Vérification des Fichiers :</label>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" name="file_verification" <?php if ($row["file_verification"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label">Activer</label>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label class="mr-2">Version Préembarquée de Java :</label>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" name="embedded_java" <?php if ($row["embedded_java"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label">Activer</label>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label class="mr-2">Affichage du rôle :</label>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" name="role" <?php if ($row["role"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label">Activer</label>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label class="mr-2">Affichage des points :</label>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" name="money" <?php if ($row["money"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label">Activer</label>
-                    </div>
-                </div>
-
-                <div class="form-group mt-3">
-                    <label for="game_folder_name">Nom du Dossier du Répertoire du Jeu :</label>
-                    <input type="text" class="form-control" id="game_folder_name" name="game_folder_name" value="<?php echo $row["game_folder_name"]; ?>">
-                </div>
-
-                <input type="submit" class="btn btn-primary mt-3" name="submit_general_settings" value="Enregistrer">
-            </form>
-        </div>
-    </div>
-</div>
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-12">
-            <form method="post" action="settings#server-info-settings">
-                <div id="server-info-settings">
-                    <h2>Paramètres du Serveur</h2>
-                    <div class="form-group">
-                        <label for="server_name">Nom du Serveur :</label>
-                        <input type="text" class="form-control" id="server_name" name="server_name" value="<?php echo $row["server_name"]; ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="server_ip">IP du Serveur :</label>
-                        <input type="text" class="form-control" id="server_ip" name="server_ip" value="<?php echo $row["server_ip"]; ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="server_port">Port du Serveur :</label>
-                        <input type="text" class="form-control" id="server_port" name="server_port" value="<?php echo $row["server_port"]; ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="server_img">Image du statut de serveur:</label>
-                        <input type="text" class="form-control" id="server_img" name="server_img" value="<?php echo $row["server_img"]; ?>">
-                    </div>
-                </div>
-                <input type="submit" class="btn btn-primary mt-3" name="submit_server_info" value="Enregistrer">
-            </form>
-        </div>
-    </div>
-</div>
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-12">
-            <form method="post" action="settings#splash-settings">
-                <div id="splash-settings">
-                    <h2>Paramètres du Splash</h2>
-                    <div class="form-group">
-                        <label for="splash">Message Splash :</label>
-                        <input type="text" class="form-control" id="splash" name="splash" value="<?php echo $row["splash"]; ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="splash_author">Auteur du Splash :</label>
-                        <input type="text" class="form-control" id="splash_author" name="splash_author" value="<?php echo $row["splash_author"]; ?>">
-                    </div>
-                </div>
-                <input type="submit" class="btn btn-primary mt-3" name="submit_splash_info" value="Enregistrer">
-            </form>
-        </div>
-    </div>
-</div>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-12">
-                <div id="loader-settings">
-                    <h2>Paramètres du Loader et de Minecraft</h2>
-                    <form method="post" action="settings#loader-settings">
-                        <div class="form-group">
-                            <label for="minecraft_version">Version de Minecraft :</label>
-                            <input type="text" class="form-control" name="minecraft_version" value="<?php echo $row["minecraft_version"]; ?>">
-                        <div class="form-group">
-                            <label for="loader-type">Type de Loader :</label>
-                            <select class="form-control" id="loader-type" name="loader_type">
-                                <option value="forge" <?php if ($row["loader_type"] == "forge") echo "selected"; ?>>Forge</option>
-                                <option value="fabric" <?php if ($row["loader_type"] == "fabric") echo "selected"; ?>>Fabric</option>
-                                <option value="legacyfabric" <?php if ($row["loader_type"] == "legacyfabric") echo "selected"; ?>>LegacyFabric</option>
-                                <option value="neoForge" <?php if ($row["loader_type"] == "neoForge") echo "selected"; ?>>NeoForge</option>
-                                <option value="quilt" <?php if ($row["loader_type"] == "quilt") echo "selected"; ?>>Quilt</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="loader-build-version">Version de Build du loader :</label>
-                            <input type="text" class="form-control" id="loader-build-version" name="loader_build_version" value="<?php echo $row["loader_build_version"]; ?>">
-                        </div>
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="loader-activation" name="loader_activation" <?php if ($row["loader_activation"] == 1) echo "checked"; ?>>
-                            <label class="form-check-label" for="loader-activation">Activer</label>
-                        </div>
-                        <input type="submit" class="btn btn-primary mt-3" name="submit_loader_settings" value="Enregistrer">
-                    </form>
-                </div>
-
-<div id="rpc-settings" class="mt-5">
-    <h2>Paramètres du RPC</h2>
-    <form method="post" action="settings#rpc-settings">
         <?php
-        $rpcFields = array(
-            "rpc_id" => "ID Client pour le RPC",
-            "rpc_details" => "Message de détails",
-            "rpc_state" => "Message de l'état",
-            "rpc_large_text" => "Message pour la grande image",
-            "rpc_small_text" => "Message pour la petite image",
-            "rpc_button1" => "Nom du 1er bouton",
-            "rpc_button1_url" => "URL du 1er bouton",
-            "rpc_button2" => "Nom du 2ème bouton",
-            "rpc_button2_url" => "URL du 2ème bouton",
-        );
+require_once './function/loader.php';
+?>
 
-        foreach ($rpcFields as $fieldName => $fieldLabel) {
-            ?>
-            <div class="form-group">
-                <label for="<?php echo $fieldName; ?>"><?php echo $fieldLabel; ?>:</label>
-                <input type="text" class="form-control" id="<?php echo $fieldName; ?>" name="<?php echo $fieldName; ?>" value="<?php echo $row[$fieldName]; ?>">
-            </div>
+            
             <?php
-        }
-        ?>
-
-        <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="rpc-activation" name="rpc_activation" <?php if ($row["rpc_activation"] == 1) echo "checked"; ?>>
-            <label class="form-check-label" for="rpc-activation">Activer</label>
-        </div>
-        <input type="submit" class="btn btn-primary mt-3" name="submit_rpc_settings" value="Enregistrer">
-    </form>
-</div>
-
-                <div id="changelog-settings" class="mt-5">
-    <h2>Paramètres du Changelog</h2>
-    <form method="post" action="settings#changelog-settings">
-        <div class="form-group">
-            <label for="changelog-version">Numéro de Mise à Jour du Changelog :</label>
-            <input type="text" class="form-control" id="changelog-version" name="changelog_version" value="<?php echo $row["changelog_version"]; ?>">
-        </div>
-        <div class="form-group">
-            <label for="changelog-message">Message du Changelog :</label>
-            <textarea class="form-control" id="changelog-message" name="changelog_message" rows="4" cols="50"><?php echo str_replace('<br>', "\n", $row["changelog_message"]); ?></textarea>
-        </div>
-        <input type="submit" class="btn btn-primary mt-3" name="submit_changelog" value="Enregistrer">
-    </form>
-</div>
-
-<div id="maintenance-settings" class="mt-5">
-    <h2>Paramètres de Maintenance</h2>
-            <form method="post" action="settings#maintenance-settings">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="maintenance" name="maintenance" <?php if ($row["maintenance"] == 1) echo "checked"; ?>>
-                        <label class="form-check-label" for="maintenance">Maintenance</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="maintenance_message">Message de Maintenance :</label>
-                        <input type="text" class="form-control" id="maintenance_message" name="maintenance_message" value="<?php echo $row["maintenance_message"]; ?>">
-                    </div>
-                </div>
-                <input type="submit" class="btn btn-primary mt-3 mt-3" name="submit_maintenance" value="Enregistrer">
-            </form>
-        </div>
+require_once './function/rpc.php';
+?>
+            
+            <?php
+require_once './function/changelog.php';
+?>
+            <?php
+require_once './function/maintenance.php';
+?>
     </div>
 
-                <div id="whitelist-settings" class="mt-5">
-    <h2>Paramètres de la Whitelist</h2>
-    <form method="post" action="settings#whitelist-settings">
-        <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="whitelist-activation" name="whitelist_activation" <?php if ($row["whitelist_activation"] == 1) echo "checked"; ?>>
-            <label class="form-check-label" for="whitelist-activation">Activer</label>
-        </div>
-        <div class="form-group">
-            <label for="whitelist-users">Noms d'utilisateurs (séparés par des virgules) :</label>
-            <input type="text" class="form-control" id="whitelist-users" name="whitelist_users" value="<?php
-                $sql = "SELECT users FROM whitelist"; 
-                $stmt = $pdo->query($sql);
-
-                $userNames = array();
-
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $userNames[] = $row["users"];
-                }
-                echo implode(', ', $userNames);
-            ?>">
-        </div>
-        <input type="submit" class="btn btn-primary mt-3 mt-3" name="submit_whitelist" value="Enregistrer">
-    </form>
-</div>
+    <?php
+require_once './function/whitelist.php';
+?>
 
 
 
-                <div id="ignored-folders-settings" class="mt-5">
-                    <h2>Paramètres des Dossiers Ignorés</h2>
-                    <form method="post" action="settings#ignored-folders-settings">
-                        <div class="form-group">
-                            <label for="ignored-folder">Dossiers ignorés (séparés par des virgules) :</label>
-                            <input type="text" class="form-control" id="ignored-folder" name="ignored_folder" value="<?php
-                                $sql = "SELECT folder_name FROM ignored_folders"; 
-                                $stmt = $pdo->query($sql);
-                                $folders = array();
+    
+    <?php
+require_once './function/roles.php';
+?>
+<?php
+require_once './function/ignore.php';
+?>
 
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                    $folders[] = $row["folder_name"];
-                                }
-                                echo implode(', ', $folders);
-                            ?>">
-                        </div>
-                        <input type="submit" class="btn btn-primary mt-3 mt-3" name="submit_ignored_folder_data" value="Enregistrer">
-                    </form>
-                </div>
 
-                <div id="roles-settings" class="mt-5">
-                    <h2>Paramètres des Rôles</h2>
-                    <form method="post" action="settings#roles-settings">
-                        <?php
-                        $sql = "SELECT * FROM roles";
-                        $stmt = $pdo->query($sql);
-
-                        $roleData = array();
-
-                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            $roleData[$row['id']] = $row;
-                        }
-                        for ($i = 1; $i <= 8; $i++) {
-                            $roleName = "";
-                            $backgroundUrl = "";
-                            if (isset($roleData[$i])) {
-                                $roleName = $roleData[$i]['role_name'];
-                                $backgroundUrl = $roleData[$i]['role_background'];
-                            }
-
-                            echo '<div class="form-group">';
-                            echo '<label for="role' . $i . '_name">Nom du rôle ' . $i . ':</label>';
-                            echo '<input type="text" class="form-control" id="role' . $i . '_name" name="role' . $i . '_name" value="' . $roleName . '">';
-
-                            echo '<label for="role' . $i . '_background">URL de l\'image de fond du rôle ' . $i . ':</label>';
-                            echo '<input type="text" class="form-control" id="role' . $i . '_background" name="role' . $i . '_background" value="' . $backgroundUrl . '">';
-                            echo '</div>';
-                        }
-                        ?>
-                        <input type="submit" class="btn btn-primary mt-3" name="submit_roles_settings" value="Enregistrer">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-                        
-    <div class="footer mt-5">Créé avec ❤️ par Riptiaz | discord.gg/VCmNXHvf77</div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+<?php
+require_once './ui/footer.php';

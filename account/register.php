@@ -1,6 +1,6 @@
 <?php
 session_start();
-$configFilePath = '../config.php';
+$configFilePath = '../conn.php';
 
 if (!file_exists($configFilePath)) {
     header('Location: ../setdb');
@@ -74,54 +74,82 @@ if (isset($_POST['submit'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="fr"data-bs-theme="dark">
+<html lang="fr" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Inscription</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h1 class="text-center">Inscription</h1>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="register">
-                        <?php if (isset($errors) && count($errors) > 0) : ?>
-                            <div class="alert alert-danger">
-                                <ul>
-                                    <?php foreach ($errors as $error) : ?>
-                                        <li><?php echo $error; ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endif; ?>
-                        <div class="form-group">
-                            <label for="email">E-mail :</label>
-                            <input type="email" class="form-control" name="email" id="email" required>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto mt-20 p-6 bg-gray-900 text-white border border-gray-700 rounded-lg shadow-lg">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-3xl font-bold mb-6 text-center">Inscription</h2>
+                <?php if (isset($errors) && count($errors) > 0) : ?>
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                        <ul>
+                            <?php foreach ($errors as $error) : ?>
+                                <li><?php echo $error; ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                <form method="post" action="register">
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-400 text-sm font-medium mb-2">E-mail :</label>
+                        <div class="relative">
+                            <input type="email" name="email" id="email" class="form-input mt-1 block w-full rounded-lg border-gray-600 bg-gray-700 text-gray-200 p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                            <i class="bi bi-envelope-fill absolute right-3 top-2.5 text-gray-400"></i>
                         </div>
-                        <div class="form-group">
-                            <label for="password">Mot de passe :</label>
-                            <input type="password" class="form-control" name="password" id="password" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-gray-400 text-sm font-medium mb-2">Mot de passe :</label>
+                        <div class="relative">
+                            <input type="password" name="password" id="password" class="form-input mt-1 block w-full rounded-lg border-gray-600 bg-gray-700 text-gray-200 p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                            <i class="bi bi-lock-fill absolute right-10 top-2.5 text-gray-400"></i>
+                            <i id="togglePassword" class="bi bi-eye-fill absolute right-3 top-2.5 cursor-pointer text-gray-400"></i>
                         </div>
-                        <div class="form-group">
-                            <label for="confirm_password">Confirmez votre mot de passe :</label>
-                            <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="confirm_password" class="block text-gray-400 text-sm font-medium mb-2">Confirmez votre mot de passe :</label>
+                        <div class="relative">
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-input mt-1 block w-full rounded-lg border-gray-600 bg-gray-700 text-gray-200 p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                            <i class="bi bi-lock-fill absolute right-10 top-2.5 text-gray-400"></i>
+                            <i id="toggleConfirmPassword" class="bi bi-eye-fill absolute right-3 top-2.5 cursor-pointer text-gray-400"></i>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-3" name="submit">S'inscrire</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button type="submit" name="submit" class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                            S'inscrire
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+        const confirmPassword = document.querySelector('#confirm_password');
+
+        togglePassword.addEventListener('click', function(e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('bi-eye-fill');
+            this.classList.toggle('bi-eye-slash-fill');
+        });
+
+        toggleConfirmPassword.addEventListener('click', function(e) {
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.classList.toggle('bi-eye-fill');
+            this.classList.toggle('bi-eye-slash-fill');
+        });
+    </script>
 </body>
 </html>

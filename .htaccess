@@ -1,5 +1,5 @@
 # Bloquer l'accès direct à certains fichiers
-<Files "config.php">
+<Files "conn.php">
       Order Deny,Allow
       Deny from all
  </Files>
