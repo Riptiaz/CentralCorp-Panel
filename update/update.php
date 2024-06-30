@@ -63,6 +63,7 @@ function updateFiles() {
                 }
             }
 
+            // Suppression des fichiers extraits
             $files = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::CHILD_FIRST
@@ -94,23 +95,29 @@ function updateDatabase($pdo) {
     }
     $sqlContent = file_get_contents($sqlFilePath);
 
+    // Diviser le contenu du fichier SQL en segments basés sur chaque table
     $tableSegments = explode('CREATE TABLE', $sqlContent);
-    array_shift($tableSegments);
+    array_shift($tableSegments); // Supprimer la première entrée qui est avant le premier 'CREATE TABLE'
 
     foreach ($tableSegments as $segment) {
+        // Récupérer le nom de la table
         preg_match('/`(\w+)`/', $segment, $tableMatch);
         $tableName = $tableMatch[1];
+        echo "Mise à jour de la table : $tableName<br>";
 
+        // Extraire les colonnes de la table
         $matches = [];
         preg_match_all('/`(\w+)` (.+?),/', $segment, $matches);
         $newColumns = array_combine($matches[1], $matches[2]);
 
+        // Récupérer les colonnes existantes de la table
         $existingColumns = [];
         $result = $pdo->query("SHOW COLUMNS FROM $tableName");
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $existingColumns[$row['Field']] = $row['Type'];
         }
 
+        // Comparer et ajouter les nouvelles colonnes
         foreach ($newColumns as $column => $type) {
             if (!array_key_exists($column, $existingColumns)) {
                 $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
