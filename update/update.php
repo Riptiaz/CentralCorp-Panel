@@ -62,34 +62,10 @@ function updateFiles() {
                     rename($file, $destination);
                 }
             }
-            $innerFiles = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
 
-            foreach ($innerFiles as $file) {
-                if ($file->isDir()) {
-                    rmdir($file);
-                } else {
-                    unlink($file);
-                }
-            }
-
+            array_map('unlink', glob("$innerFolder/*"));
             rmdir($innerFolder);
         }
-        $tempFiles = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($extractPath, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($tempFiles as $file) {
-            if ($file->isDir()) {
-                rmdir($file);
-            } else {
-                unlink($file);
-            }
-        }
-
         rmdir($extractPath);
 
         return true;
