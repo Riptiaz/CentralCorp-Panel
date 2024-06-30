@@ -107,7 +107,7 @@ function updateDatabase($pdo) {
 
         // Extraire les colonnes de la table
         $matches = [];
-        preg_match_all('/`(\w+)` (.+?),/', $segment, $matches);
+        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
         $newColumns = array_combine($matches[1], $matches[2]);
 
         // Récupérer les colonnes existantes de la table
