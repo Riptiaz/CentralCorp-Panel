@@ -63,7 +63,6 @@ function updateFiles() {
                 }
             }
 
-            // Suppression des fichiers extraits
             $files = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::CHILD_FIRST
@@ -95,30 +94,31 @@ function updateDatabase($pdo) {
     }
     $sqlContent = file_get_contents($sqlFilePath);
 
-    // Récupérer le nom de la table à partir du fichier SQL
-    preg_match('/CREATE TABLE `(\w+)`/', $sqlContent, $tableMatch);
-    $tableName = $tableMatch[1];
+    $tableSegments = explode('CREATE TABLE', $sqlContent);
+    array_shift($tableSegments);
 
-    // Extraire les colonnes du fichier SQL avec un regex amélioré
-    $matches = [];
-    preg_match_all('/`(\w+)` (.+?),/', $sqlContent, $matches);
-    $newColumns = array_combine($matches[1], $matches[2]);
+    foreach ($tableSegments as $segment) {
+        preg_match('/`(\w+)`/', $segment, $tableMatch);
+        $tableName = $tableMatch[1];
 
-    // Récupérer les colonnes existantes de la table
-    $existingColumns = [];
-    $result = $pdo->query("SHOW COLUMNS FROM $tableName");
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $existingColumns[$row['Field']] = $row['Type'];
-    }
+        $matches = [];
+        preg_match_all('/`(\w+)` (.+?),/', $segment, $matches);
+        $newColumns = array_combine($matches[1], $matches[2]);
 
-    // Comparer et ajouter les nouvelles colonnes
-    foreach ($newColumns as $column => $type) {
-        if (!array_key_exists($column, $existingColumns)) {
-            $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
-            if ($pdo->exec($alterQuery) !== false) {
-                echo "Colonne '$column' ajoutée avec succès.<br>";
-            } else {
-                echo "Erreur lors de l'ajout de la colonne '$column'.<br>";
+        $existingColumns = [];
+        $result = $pdo->query("SHOW COLUMNS FROM $tableName");
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $existingColumns[$row['Field']] = $row['Type'];
+        }
+
+        foreach ($newColumns as $column => $type) {
+            if (!array_key_exists($column, $existingColumns)) {
+                $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                if ($pdo->exec($alterQuery) !== false) {
+                    echo "Colonne '$column' ajoutée avec succès à la table '$tableName'.<br>";
+                } else {
+                    echo "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.<br>";
+                }
             }
         }
     }
