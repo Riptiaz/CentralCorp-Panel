@@ -88,30 +88,31 @@
         });
 
         document.getElementById('updateButton').addEventListener('click', function() {
-            document.getElementById('updateOverlay').classList.remove('hidden');
-            document.getElementById('updatePopup').classList.remove('hidden');
-        });
+    document.getElementById('updateOverlay').classList.remove('hidden');
+    document.getElementById('updatePopup').classList.remove('hidden');
+});
 
-        document.getElementById('cancelUpdateButton').addEventListener('click', function() {
-            document.getElementById('updateOverlay').classList.add('hidden');
-            document.getElementById('updatePopup').classList.add('hidden');
-        });
+document.getElementById('cancelUpdateButton').addEventListener('click', function() {
+    document.getElementById('updateOverlay').classList.add('hidden');
+    document.getElementById('updatePopup').classList.add('hidden');
+});
 
-        document.getElementById('confirmUpdateButton').addEventListener('click', function() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'update/update.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    document.getElementById('updateMessage').innerText = response.message;
-                    if (response.success) {
-                        document.getElementById('confirmUpdateButton').style.display = 'none';
-                    }
-                }
-            };
-            xhr.send('update_button=1');
-        });
+document.getElementById('confirmUpdateButton').addEventListener('click', function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'update/update.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var response = JSON.parse(xhr.responseText);
+            document.getElementById('updateMessage').innerText = response.message;
+            if (response.success) {
+                document.getElementById('confirmUpdateButton').style.display = 'none';
+            }
+        }
+    };
+    xhr.send('update_button=1');
+});
+
     </script>
 </body>
 </html>
