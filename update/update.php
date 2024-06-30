@@ -2,12 +2,12 @@
 session_start();
 $configFilePath = '../conn.php';
 if (!file_exists($configFilePath)) {
-    header('Location: ../setdb');
+    echo json_encode(['success' => false, 'message' => 'Fichier de configuration introuvable.']);
     exit();
 }
 require_once '../connexion_bdd.php';
 if (!isset($_SESSION['user_token']) || !isset($_SESSION['user_email'])) {
-    header('Location: account/connexion');
+    echo json_encode(['success' => false, 'message' => 'Accès refusé. Veuillez vous connecter.']);
     exit();
 }
 
@@ -90,8 +90,7 @@ function updateFiles() {
 function updateDatabase($pdo) {
     $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
-        echo "Fichier panel.sql introuvable.<br>";
-        return;
+        return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
     $sqlContent = file_get_contents($sqlFilePath);
 
@@ -103,7 +102,6 @@ function updateDatabase($pdo) {
         // Récupérer le nom de la table
         preg_match('/`(\w+)`/', $segment, $tableMatch);
         $tableName = $tableMatch[1];
-        echo "Mise à jour de la table : $tableName<br>";
 
         // Extraire les colonnes de la table
         $matches = [];
@@ -121,40 +119,35 @@ function updateDatabase($pdo) {
         foreach ($newColumns as $column => $type) {
             if (!array_key_exists($column, $existingColumns)) {
                 $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
-                if ($pdo->exec($alterQuery) !== false) {
-                    echo "Colonne '$column' ajoutée avec succès à la table '$tableName'.<br>";
-                } else {
-                    echo "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.<br>";
+                if ($pdo->exec($alterQuery) === false) {
+                    return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
                 }
             }
         }
     }
+    return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();
 
-    echo "Version actuelle : $currentVersion<br>";
-    echo "Dernière version : $latestVersion<br>";
-
     if (isNewVersionAvailable($currentVersion, $latestVersion)) {
-        echo "Nouvelle version disponible. Mise à jour en cours...<br>";
-
         if (updateFiles()) {
-            echo "Fichiers mis à jour avec succès.<br>";
-
-            updateDatabase($pdo);
-
-            file_put_contents('version.txt', $latestVersion);
-            echo "Mise à jour terminée avec succès à la version $latestVersion.<br>";
+            $dbUpdateResult = updateDatabase($pdo);
+            if ($dbUpdateResult['success']) {
+                file_put_contents('version.txt', $latestVersion);
+                echo json_encode(['success' => true, 'message' => "Mise à jour terminée avec succès à la version $latestVersion."]);
+            } else {
+                echo json_encode($dbUpdateResult);
+            }
         } else {
-            echo "Échec de la mise à jour des fichiers.<br>";
+            echo json_encode(['success' => false, 'message' => 'Échec de la mise à jour des fichiers.']);
         }
     } else {
-        echo "Votre application est déjà à jour.<br>";
+        echo json_encode(['success' => true, 'message' => 'Aucune mise à jour disponible.']);
     }
 } else {
-    echo "Requête invalide.<br>";
+    echo json_encode(['success' => false, 'message' => 'Requête non valide.']);
 }
 ?>
