@@ -35,7 +35,6 @@ function updateFiles() {
     $zipFile = 'update.zip';
     $url = 'https://github.com/Riptiaz/CentralCorp-Panel/archive/refs/heads/dev.zip';
 
-    echo "Téléchargement des fichiers de mise à jour...<br>";
     file_put_contents($zipFile, fopen($url, 'r'));
 
     $zip = new ZipArchive;
@@ -43,7 +42,6 @@ function updateFiles() {
         $extractPath = './temp-update';
         mkdir($extractPath);
 
-        echo "Extraction des fichiers...<br>";
         $zip->extractTo($extractPath);
         $zip->close();
         unlink($zipFile);
@@ -59,23 +57,32 @@ function updateFiles() {
                 $destination = str_replace($innerFolder, '..', $file);
 
                 if ($file->isDir()) {
-                    if (!is_dir($destination)) {
-                        mkdir($destination);
-                    }
+                    mkdir($destination);
                 } else {
                     rename($file, $destination);
                 }
             }
 
-            echo "Suppression des fichiers temporaires...<br>";
-            array_map('unlink', glob("$innerFolder/*"));
+            // Suppression des fichiers extraits
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getRealPath());
+                } else {
+                    unlink($file->getRealPath());
+                }
+            }
+
             rmdir($innerFolder);
         }
         rmdir($extractPath);
 
         return true;
     } else {
-        echo "Erreur lors de l'ouverture de l'archive de mise à jour.<br>";
         return false;
     }
 }
@@ -86,21 +93,15 @@ function updateDatabase($pdo) {
         echo "Fichier panel.sql introuvable.<br>";
         return;
     }
-    echo "Lecture du fichier panel.sql...<br>";
     $sqlContent = file_get_contents($sqlFilePath);
 
     // Récupérer le nom de la table à partir du fichier SQL
-    if (preg_match('/CREATE TABLE `(\w+)`/', $sqlContent, $tableMatch)) {
-        $tableName = $tableMatch[1];
-        echo "Mise à jour de la table : $tableName<br>";
-    } else {
-        echo "Nom de la table non trouvé dans le fichier panel.sql.<br>";
-        return;
-    }
+    preg_match('/CREATE TABLE `(\w+)`/', $sqlContent, $tableMatch);
+    $tableName = $tableMatch[1];
 
-    // Extraire les colonnes du fichier SQL
+    // Extraire les colonnes du fichier SQL avec un regex amélioré
     $matches = [];
-    preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+)/', $sqlContent, $matches);
+    preg_match_all('/`(\w+)` (.+?),/', $sqlContent, $matches);
     $newColumns = array_combine($matches[1], $matches[2]);
 
     // Récupérer les colonnes existantes de la table
@@ -114,14 +115,11 @@ function updateDatabase($pdo) {
     foreach ($newColumns as $column => $type) {
         if (!array_key_exists($column, $existingColumns)) {
             $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
-            echo "Ajout de la colonne $column avec le type $type...<br>";
             if ($pdo->exec($alterQuery) !== false) {
                 echo "Colonne '$column' ajoutée avec succès.<br>";
             } else {
                 echo "Erreur lors de l'ajout de la colonne '$column'.<br>";
             }
-        } else {
-            echo "La colonne '$column' existe déjà.<br>";
         }
     }
 }
