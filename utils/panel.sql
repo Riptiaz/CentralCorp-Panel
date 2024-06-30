@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Nov 16, 2023 at 11:06 PM
--- Server version: 10.5.21-MariaDB-0+deb11u1
--- PHP Version: 8.2.11
+-- Hôte : localhost
+-- Généré le : dim. 30 juin 2024 à 10:50
+-- Version du serveur : 11.4.2-MariaDB-ubu2204
+-- Version de PHP : 8.1.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `conflicturalauncher`
+-- Base de données : `dev_panel`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ignored_folders`
+-- Structure de la table `ignored_folders`
 --
 
 CREATE TABLE `ignored_folders` (
@@ -33,7 +33,7 @@ CREATE TABLE `ignored_folders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `ignored_folders`
+-- Déchargement des données de la table `ignored_folders`
 --
 
 INSERT INTO `ignored_folders` (`folder_name`, `id`) VALUES
@@ -49,7 +49,7 @@ INSERT INTO `ignored_folders` (`folder_name`, `id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `options`
+-- Structure de la table `options`
 --
 
 CREATE TABLE `options` (
@@ -85,20 +85,21 @@ CREATE TABLE `options` (
   `rpc_button1_url` text NOT NULL,
   `rpc_button2` text NOT NULL,
   `rpc_button2_url` text NOT NULL,
-  `whitelist_activation` int(11) NOT NULL
+  `whitelist_activation` int(11) NOT NULL,
+  `test` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `options`
+-- Déchargement des données de la table `options`
 --
 
-INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`) VALUES
-(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 1, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '1.19.3-44.1.0', '1', '1.0.0', 'Derniere version du launcher', 0, 0, 'https://conflictura.site/storage/img/logo2.png', 'Ceci est du code', 'Riptiaz', 'https://conflictura.site', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.site', 0);
+INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `test`) VALUES
+(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 1, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '1.19.3-44.1.0', '1', '1.0.0', 'Derniere version du launcher', 0, 0, 'https://conflictura.site/storage/img/logo2.png', 'Ceci est du code', 'Riptiaz', 'https://conflictura.site', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.site', 0, '');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `roles`
+-- Structure de la table `roles`
 --
 
 CREATE TABLE `roles` (
@@ -108,11 +109,11 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `roles`
+-- Déchargement des données de la table `roles`
 --
 
 INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
-(1, 'Membre', 'your img url'),
+(1, 'Membre', 'your image url'),
 (2, 'Fondateur', 'your image url'),
 (3, 'Dev', 'your image url'),
 (4, 'Modo', 'your image url'),
@@ -124,7 +125,7 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Structure de la table `users`
 --
 
 CREATE TABLE `users` (
@@ -137,7 +138,7 @@ CREATE TABLE `users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `whitelist`
+-- Structure de la table `whitelist`
 --
 
 CREATE TABLE `whitelist` (
@@ -146,63 +147,63 @@ CREATE TABLE `whitelist` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Index pour les tables déchargées
 --
 
 --
--- Indexes for table `ignored_folders`
+-- Index pour la table `ignored_folders`
 --
 ALTER TABLE `ignored_folders`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `options`
+-- Index pour la table `options`
 --
 ALTER TABLE `options`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `roles`
+-- Index pour la table `roles`
 --
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `users`
+-- Index pour la table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `whitelist`
+-- Index pour la table `whitelist`
 --
 ALTER TABLE `whitelist`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT pour les tables déchargées
 --
 
 --
--- AUTO_INCREMENT for table `ignored_folders`
+-- AUTO_INCREMENT pour la table `ignored_folders`
 --
 ALTER TABLE `ignored_folders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
--- AUTO_INCREMENT for table `options`
+-- AUTO_INCREMENT pour la table `options`
 --
 ALTER TABLE `options`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `whitelist`
+-- AUTO_INCREMENT pour la table `whitelist`
 --
 ALTER TABLE `whitelist`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
