@@ -17,7 +17,14 @@ function getCurrentVersion() {
 
 function getLatestVersion() {
     $url = 'https://raw.githubusercontent.com/Riptiaz/CentralCorp-Panel/dev/update/version.txt';
-    return trim(file_get_contents($url));
+    $opts = [
+        "http" => [
+            "method" => "GET",
+            "header" => "Cache-Control: no-cache, no-store, must-revalidate\r\n"
+        ]
+    ];
+    $context = stream_context_create($opts);
+    return trim(file_get_contents($url, false, $context));
 }
 
 function isNewVersionAvailable($currentVersion, $latestVersion) {
@@ -32,17 +39,66 @@ function updateFiles() {
 
     $zip = new ZipArchive;
     if ($zip->open($zipFile) === TRUE) {
-        $zip->extractTo('.');
+        $extractPath = './temp-update';
+        mkdir($extractPath);
+
+        $zip->extractTo($extractPath);
         $zip->close();
         unlink($zipFile);
+
+        $innerFolder = $extractPath . '/CentralCorp-Panel-dev';
+        if (is_dir($innerFolder)) {
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            foreach ($files as $file) {
+                $destination = str_replace($innerFolder, '..', $file);
+
+                if ($file->isDir()) {
+                    mkdir($destination);
+                } else {
+                    rename($file, $destination);
+                }
+            }
+            $innerFiles = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($innerFiles as $file) {
+                if ($file->isDir()) {
+                    rmdir($file);
+                } else {
+                    unlink($file);
+                }
+            }
+
+            rmdir($innerFolder);
+        }
+        $tempFiles = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($extractPath, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($tempFiles as $file) {
+            if ($file->isDir()) {
+                rmdir($file);
+            } else {
+                unlink($file);
+            }
+        }
+
+        rmdir($extractPath);
+
         return true;
     } else {
         return false;
     }
 }
-
 function updateDatabase($pdo) {
-    $sqlFilePath = './utils/panel.sql';
+    $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
         echo "Fichier panel.sql introuvable.<br>";
         return;
