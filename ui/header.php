@@ -65,12 +65,12 @@
         </div>
     </nav>
     <div id="updateOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
-    <div id="updatePopup" class="fixed inset-0 bg-white p-4 rounded shadow-lg w-1/3 mx-auto mt-20 hidden">
+    <div id="updatePopup" class="fixed inset-0 bg-gray-700 p-4 rounded shadow-lg w-1/3 mx-auto mt-20 hidden">
     <div class="flex flex-col items-center justify-center h-full">
         <div class="text-center">
             <h2 class="text-xl font-bold mb-4">Mise à jour du système</h2>
             <p id="updateMessage" class="mb-4">Voulez-vous vraiment mettre à jour le système ?</p>
-            <div class="flex justify-end">
+            <div class="flex justify-center">
                 <button id="confirmUpdateButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2">Oui</button>
                 <button id="cancelUpdateButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Non</button>
             </div>

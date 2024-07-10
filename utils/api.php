@@ -1,4 +1,5 @@
 <?php
+session_start();
 $configFilePath = '../conn.php';
 
 if (!file_exists($configFilePath)) {
@@ -7,6 +8,9 @@ if (!file_exists($configFilePath)) {
 }
 
 require_once '../connexion_bdd.php';
+
+$domain = $_SERVER['HTTP_HOST'];
+$baseURL = 'https://' . $domain;
 
 $sql = "SELECT * FROM options";
 $stmt = $pdo->prepare($sql);
@@ -30,13 +34,12 @@ $data = [
     ],
     "loader" => [
         "type" => $options["loader_type"],
-        "build" => $options["loader_build_version"],
+        "build" => ($options["loader_type"] === 'forge') ? $options["loader_forge_version"] : $options["loader_build_version"],
         "enable" => (bool) $options["loader_activation"]
     ],
     "changelog_version" => $options["changelog_version"],
     "changelog_new" => $options["changelog_message"],
     "online" => "true",
-    "server_img" => $options["server_img"],
     "game_args" => [],
     "money" => (bool) $options["money"],
     "role" => (bool) $options["role"],
@@ -56,18 +59,21 @@ $data = [
     "whitelist_activate" => (bool) $options["whitelist_activation"],      
 ];
 
+if (!empty($options["server_img"])) {
+    $data["server_img"] = cleanImageUrl($options["server_img"], $baseURL);
+} else {
+    $data["server_img"] = "";
+}
+
 $sqlRoles = "SELECT * FROM roles";
 $stmtRoles = $pdo->query($sqlRoles);
 
 $rolesData = [];
 
 while ($rowRole = $stmtRoles->fetch(PDO::FETCH_ASSOC)) {
-
     $roleId = $rowRole['id'];
     $roleName = $rowRole['role_name'];
-    $roleBackground = $rowRole['role_background'];
-
-
+    $roleBackground = (!empty($rowRole['role_background'])) ? cleanImageUrl($rowRole['role_background'], $baseURL) : "";
     $rolesData["role" . $roleId] = [
         "name" => $roleName,
         "background" => $roleBackground
@@ -100,4 +106,11 @@ $data["whitelist"] = $whitelistUsers;
 
 header('Content-Type: application/json');
 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+?>
+
+<?php
+function cleanImageUrl($imagePath, $baseURL) {
+    $cleanPath = ltrim($imagePath, './');
+    return $baseURL . '/' . $cleanPath;
+}
 ?>

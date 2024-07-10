@@ -13,16 +13,31 @@ if (isset($_POST['logout'])) {
     header('Location: account/connexion');
     exit();
 }
+$sql = "SELECT * FROM options";
+$stmt = $pdo->query($sql);
+
+if ($stmt->rowCount() > 0) {
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    $row = [];
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["submit_roles_settings"])) {
-        $roles = array();
-    
         for ($i = 1; $i <= 8; $i++) {
-            $roleName = $_POST["role" . $i . "_name"];
-            $backgroundUrl = $_POST["role" . $i . "_background"];
-    
-            if (!empty($roleName)) {
+            $roleName = $_POST["role" . $i . "_name"] ?? '';
 
+            // Fetch current background before attempting to upload a new one
+            $sql = "SELECT role_background FROM roles WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':id', $i);
+            $stmt->execute();
+            $currentBackground = $stmt->fetchColumn();
+
+            // Handle role background image upload
+            $backgroundUrl = uploadRoleImage($i, $currentBackground);
+
+            if (!empty($roleName)) {
                 $sql = "INSERT INTO roles (id, role_name, role_background) VALUES (:id, :role_name, :role_background)
                         ON DUPLICATE KEY UPDATE role_name = :role_name, role_background = :role_background";
                 $stmt = $pdo->prepare($sql);
@@ -31,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':role_background', $backgroundUrl);
                 $stmt->execute();
             }
-        }
+        }    
     }elseif (isset($_POST["submit_maintenance"])) {
         $maintenance = isset($_POST["maintenance"]) ? 1 : 0;
         $sql = "UPDATE options SET maintenance = ?";
@@ -43,20 +58,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindValue(':maintenance_message', $maintenance_message, PDO::PARAM_STR);
         $stmt->execute();
     } elseif (isset($_POST["submit_server_info"])) {
-            $server_img = $_POST["server_img"];
-            $sql = "UPDATE options SET server_img = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$server_img]);
-            
-            $server_name = $_POST["server_name"];
-            $server_ip = $_POST["server_ip"];
-            $server_port = $_POST["server_port"];
-            
-            $sql = "UPDATE options SET server_name = ?, server_ip = ?, server_port = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$server_name, $server_ip, $server_port]);
-        
-    } elseif (isset($_POST["submit_loader_settings"])) {
+        $server_name = $_POST["server_name"];
+        $server_ip = $_POST["server_ip"];
+        $server_port = $_POST["server_port"];
+
+        // Fetch current image before attempting to upload a new one
+        $current_img = isset($row['server_img']) ? $row['server_img'] : null;
+        $server_img = uploadServerImage($current_img);
+
+        $sql = "UPDATE options SET server_name = ?, server_ip = ?, server_port = ?, server_img = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$server_name, $server_ip, $server_port, $server_img]);
+    }elseif (isset($_POST["submit_loader_settings"])) {
         
             $game_folder_name = $_POST["minecraft_version"];
             $sql = "UPDATE options SET minecraft_version = ?";
@@ -64,11 +77,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute([$game_folder_name]);
             $loader_type = $_POST["loader_type"];
             $loader_build_version = $_POST["loader_build_version"];
+            $loader_forge_version = $_POST["loader_forge_version"];
             $loader_activation = isset($_POST["loader_activation"]) ? 1 : 0;
             
-            $sql = "UPDATE options SET loader_type = ?, loader_build_version = ?, loader_activation = ?";
+            $sql = "UPDATE options SET loader_type = ?, loader_build_version = ?, loader_forge_version = ?, loader_activation = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$loader_type, $loader_build_version, $loader_activation]);
+            $stmt->execute([$loader_type, $loader_build_version, $loader_forge_version, $loader_activation]);
         
     }elseif (isset($_POST["submit_rpc_settings"])) {
         $rpc_id = $_POST["rpc_id"];
@@ -185,6 +199,48 @@ $stmt = $pdo->query($sql);
 if ($stmt->rowCount() > 0) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 }
+function uploadServerImage($currentImage)
+{
+    if (empty($_FILES['server_img']['tmp_name']) || $_FILES['server_img']['error'] !== UPLOAD_ERR_OK) {
+        return $currentImage;
+    }
+
+    $uploadDir = './uploads/';
+    $uploadedFile = $_FILES['server_img']['tmp_name'];
+    $fileName = $_FILES['server_img']['name'];
+    $fileType = $_FILES['server_img']['type'];
+
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($fileType, $allowedTypes)) {
+        die("Erreur : Seuls les fichiers JPEG, PNG et GIF sont autorisés.");
+    }
+
+    $uniqueFileName = uniqid() . '_' . $fileName;
+
+    if (move_uploaded_file($uploadedFile, $uploadDir . $uniqueFileName)) {
+        return $uploadDir . $uniqueFileName;
+    } else {
+        die("Erreur lors du déplacement du fichier téléchargé.");
+    }
+}
+function uploadRoleImage($roleIndex, $currentBackground) {
+    if (isset($_FILES["role" . $roleIndex . "_background"]) && $_FILES["role" . $roleIndex . "_background"]["error"] == 0) {
+        $targetDirectory = "uploads/";
+        if (!file_exists($targetDirectory)) {
+            mkdir($targetDirectory, 0777, true);
+        }
+        $targetFile = $targetDirectory . basename($_FILES["role" . $roleIndex . "_background"]["name"]);
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+        if (getimagesize($_FILES["role" . $roleIndex . "_background"]["tmp_name"])) {
+            if (move_uploaded_file($_FILES["role" . $roleIndex . "_background"]["tmp_name"], $targetFile)) {
+                return $targetFile;
+            }
+        }
+    }
+    return $currentBackground;
+}
+
 ?>
 <?php
 require_once './ui/header.php';

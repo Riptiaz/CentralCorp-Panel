@@ -85,16 +85,14 @@ CREATE TABLE `options` (
   `rpc_button1_url` text NOT NULL,
   `rpc_button2` text NOT NULL,
   `rpc_button2_url` text NOT NULL,
-  `whitelist_activation` int(11) NOT NULL,
-  `test` text NOT NULL,
-  `test2` int(11) NOT NULL
+  `whitelist_activation` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `options`
 --
 
-INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `test`, `test2`) VALUES
+INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`) VALUES
 (1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 1, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '1.19.3-44.1.0', '1', '1.0.0', 'Derniere version du launcher', 0, 0, 'https://conflictura.site/storage/img/logo2.png', 'Ceci est du code', 'Riptiaz', 'https://conflictura.site', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.site', 0, '', 0);
 
 -- --------------------------------------------------------
