@@ -99,7 +99,7 @@ require_once '../../ui/header2.php';
     <div class="container mx-auto mt-20 p-6 bg-gray-900 text-white border border-gray-700 rounded-lg shadow-lg">
         <div class="flex justify-center">
             <div class="w-full max-w-md">
-                <h2 class="text-3xl font-bold mb-6 text-center">ajouter une autre personne</h2>
+                <h2 class="text-3xl font-bold mb-6 text-center">Ajouter un utilisateur</h2>
                 <?php if (isset($errors) && count($errors) > 0) : ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                         <ul>
@@ -143,7 +143,7 @@ require_once '../../ui/header2.php';
         </div>
     </div>
     <div class="container mx-auto mt-10 p-6 bg-gray-800 text-white border border-gray-700 rounded-lg shadow-lg">
-        <h2 class="text-3xl font-bold mb-6 text-center">Liste de tout utilisateurs</h2>
+        <h2 class="text-3xl font-bold mb-6 text-center">Liste des utilisateurs</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($users as $user) : ?>
                 <div class="p-4 bg-gray-900 rounded-lg shadow-md">

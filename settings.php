@@ -1,4 +1,5 @@
 <?php
+require_once './utils/logs.php';
 session_start();
 $configFilePath = './conn.php';
 if (!file_exists($configFilePath)) {
@@ -27,14 +28,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         for ($i = 1; $i <= 8; $i++) {
             $roleName = $_POST["role" . $i . "_name"] ?? '';
 
-            // Fetch current background before attempting to upload a new one
             $sql = "SELECT role_background FROM roles WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':id', $i);
             $stmt->execute();
             $currentBackground = $stmt->fetchColumn();
 
-            // Handle role background image upload
             $backgroundUrl = uploadRoleImage($i, $currentBackground);
 
             if (!empty($roleName)) {
@@ -45,6 +44,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':role_name', $roleName);
                 $stmt->bindParam(':role_background', $backgroundUrl);
                 $stmt->execute();
+
+                $action = "Modification du rôle $roleName avec l'image de fond $backgroundUrl";
+                logAction($_SESSION['user_email'], $action);
             }
         }    
     }elseif (isset($_POST["submit_maintenance"])) {
@@ -57,18 +59,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':maintenance_message', $maintenance_message, PDO::PARAM_STR);
         $stmt->execute();
+
+        $action = "Modification du mode maintenance avec message : $maintenance_message";
+        logAction($_SESSION['user_email'], $action);
+
     } elseif (isset($_POST["submit_server_info"])) {
         $server_name = $_POST["server_name"];
         $server_ip = $_POST["server_ip"];
         $server_port = $_POST["server_port"];
 
-        // Fetch current image before attempting to upload a new one
         $current_img = isset($row['server_img']) ? $row['server_img'] : null;
         $server_img = uploadServerImage($current_img);
 
         $sql = "UPDATE options SET server_name = ?, server_ip = ?, server_port = ?, server_img = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$server_name, $server_ip, $server_port, $server_img]);
+
+        $action = "Modification des informations du serveur : $server_name, $server_ip:$server_port";
+        logAction($_SESSION['user_email'], $action);
+
     }elseif (isset($_POST["submit_loader_settings"])) {
         
             $game_folder_name = $_POST["minecraft_version"];
@@ -83,6 +92,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql = "UPDATE options SET loader_type = ?, loader_build_version = ?, loader_forge_version = ?, loader_activation = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$loader_type, $loader_build_version, $loader_forge_version, $loader_activation]);
+
+            $action = "Modification des paramètres de chargement : $loader_type, version $loader_build_version, activation $loader_activation";
+            logAction($_SESSION['user_email'], $action);
         
     }elseif (isset($_POST["submit_rpc_settings"])) {
         $rpc_id = $_POST["rpc_id"];
@@ -99,6 +111,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET rpc_id = ?, rpc_details = ?, rpc_state = ?, rpc_large_text = ?, rpc_small_text = ?, rpc_activation = ?, rpc_button1 = ?, rpc_button1_url = ?, rpc_button2 = ?, rpc_button2_url = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$rpc_id, $rpc_details, $rpc_state, $rpc_large_text, $rpc_small_text, $rpc_activation, $rpc_button1, $rpc_button1_url, $rpc_button2, $rpc_button2_url]);
+
+        $action = "Modification des paramètres RPC : ID $rpc_id, détails $rpc_details, état $rpc_state, texte large $rpc_large_text, texte petit $rpc_small_text, activation $rpc_activation, bouton 1 $rpc_button1, URL bouton 1 $rpc_button1_url, bouton 2 $rpc_button2, URL bouton 2 $rpc_button2_url";
+        logAction($_SESSION['user_email'], $action);
     
     }elseif (isset($_POST["submit_changelog"])) {
         $changelog_version = $_POST["changelog_version"];
@@ -107,6 +122,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET changelog_version = ?, changelog_message = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$changelog_version, $changelog_message]);
+
+        $action = "Modification du changelog : version $changelog_version, message $changelog_message";
+        logAction($_SESSION['user_email'], $action);
+
     } elseif (isset($_POST["submit_splash_info"])) {
         $splash = $_POST["splash"];
         $splash_author = $_POST["splash_author"];
@@ -114,6 +133,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET splash = ?, splash_author = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$splash, $splash_author]);
+
+        $action = "Modification de l'écran de chargement : $splash, auteur $splash_author";
+        logAction($_SESSION['user_email'], $action);
     
     }elseif (isset($_POST["submit_ignored_folder_data"])) {
         $ignored_folder = $_POST["ignored_folder"];
@@ -134,6 +156,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':folder_name', $folder);
             $stmt->execute();
         }
+
+        $action = "Mise à jour des dossiers ignorés : $ignored_folder";
+        logAction($_SESSION['user_email'], $action);
+
     }elseif (isset($_POST["submit_whitelist"])) {
         $whitelist = isset($_POST["whitelist_activation"]) ? 1 : 0;
         $sql = "UPDATE options SET whitelist_activation = ?";
@@ -154,6 +180,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':users', $username);
             $stmt->execute();
         }
+
+        $action = "Mise à jour de la liste blanche : activation $whitelist, utilisateurs $whitelistUsers";
+        logAction($_SESSION['user_email'], $action);
+
     }elseif (isset($_POST["submit_general_settings"])) {
         
             $role = isset($_POST["role"]) ? 1 : 0;
@@ -190,7 +220,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql = "UPDATE options SET embedded_java = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$embedded_java]);
-            
+
+            $action = "Modification des paramètres généraux : rôle $role, argent $money, dossier de jeu $game_folder_name, Azuriom $azuriom, mods activés $mods, vérification des fichiers $file_verification, Java intégré $embedded_java";
+            logAction($_SESSION['user_email'], $action);
 }
 }
 $sql = "SELECT * FROM options";
@@ -260,48 +292,15 @@ require_once './ui/header.php';
     </svg>
   </a>
 
-<?php
-require_once './function/main.php';
-?>
-<?php
-require_once './function/serveur.php';
-?>
-<?php
-require_once './function/splash.php';
-?>
-
-
-        <?php
-require_once './function/loader.php';
-?>
-
-            
-            <?php
-require_once './function/rpc.php';
-?>
-            
-            <?php
-require_once './function/changelog.php';
-?>
-            <?php
-require_once './function/maintenance.php';
-?>
-    </div>
-
-    <?php
-require_once './function/whitelist.php';
-?>
-
-
-
-    
-    <?php
-require_once './function/roles.php';
-?>
-<?php
-require_once './function/ignore.php';
-?>
-
-
-<?php
-require_once './ui/footer.php';
+<?php require_once './function/main.php';?>
+<?php require_once './function/serveur.php';?>
+<?php require_once './function/splash.php';?>
+<?php require_once './function/loader.php';?>           
+<?php require_once './function/rpc.php';?>           
+<?php require_once './function/changelog.php';?>
+<?php require_once './function/maintenance.php';?>
+<?php require_once './function/whitelist.php';?>    
+<?php require_once './function/roles.php';?>
+<?php require_once './function/ignore.php';?>
+<?php require_once './function/logs.php'; ?>
+<?php require_once './ui/footer.php';

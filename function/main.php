@@ -104,13 +104,6 @@
                         class="form-input mt-1 block w-full rounded-lg border-gray-600 bg-gray-700 text-gray-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                         id="game_folder_name" name="game_folder_name" value="<?php echo $row['game_folder_name']; ?>">
                 </div>
-                <div class="mb-6 mt-6">
-                    <label for="new-user" class="block text-sm font-medium text-gray-400 mb-5">
-                        Autre utilisateur :</label>
-                    <a id="newUser" href = 'account/new/register'
-                        class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">Ajouter
-                        un nouvel utilisateur</a>
-                </div>
 
                 
 
