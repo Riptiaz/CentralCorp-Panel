@@ -11,8 +11,8 @@
                                 $stmt = $pdo->query($sql);
                                 $folders = array();
 
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                    $folders[] = $row["folder_name"];
+                                while ($ignore = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    $folders[] = $ignore["folder_name"];
                                 }
                                 echo implode(', ', $folders);
                             ?>">

@@ -24,8 +24,8 @@
 
                 $roleData = array();
 
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $roleData[$row['id']] = $row;
+                while ($role = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $roleData[$role['id']] = $role;
                 }
                 ?>
 

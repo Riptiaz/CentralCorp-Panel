@@ -19,8 +19,6 @@ $stmt = $pdo->query($sql);
 
 if ($stmt->rowCount() > 0) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-} else {
-    $row = [];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -362,6 +360,7 @@ $sql = "SELECT * FROM mods WHERE optional = 1";
 $optionalModsStmt = $pdo->query($sql);
 $optionalMods = $optionalModsStmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 ?>
 <?php
 require_once './ui/header.php';
@@ -388,9 +387,9 @@ require_once './ui/header.php';
 <?php require_once './function/rpc.php';?>           
 <?php require_once './function/changelog.php';?>
 <?php require_once './function/maintenance.php';?>
-<?php require_once './function/whitelist.php';?>    
+<?php require_once './function/whitelist.php';?>  
 <?php require_once './function/roles.php';?>
 <?php require_once './function/ignore.php';?>
 <?php require_once './function/mods.php';?>
-<?php require_once './function/alert.php';?>
+<?php require_once './function/alert.php';?> 
 <?php require_once './ui/footer.php';

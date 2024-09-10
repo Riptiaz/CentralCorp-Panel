@@ -19,8 +19,8 @@
 
                 $userNames = array();
 
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $userNames[] = $row["users"];
+                while ($whitelist = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $userNames[] = $whitelist["users"];
                 }
                 echo implode(', ', $userNames);
             ?>">
