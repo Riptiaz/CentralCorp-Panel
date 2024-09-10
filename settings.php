@@ -223,13 +223,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $action = "Modification des paramètres généraux : rôle $role, argent $money, dossier de jeu $game_folder_name, Azuriom $azuriom, mods activés $mods, vérification des fichiers $file_verification, Java intégré $embedded_java";
             logAction($_SESSION['user_email'], $action);
-}
-}
-$sql = "SELECT * FROM options";
-$stmt = $pdo->query($sql);
+}elseif (isset($_POST["add_optional"])) {
+    $index = $_POST["add_optional"];
+    $modFile = $_POST["file"];
+    $modName = $_POST["name"];
+    $modDescription = $_POST["description"];
+    $modIcon = $_POST["icon"];
+    $modRecommended = isset($_POST["recommended"]) ? 1 : 0;
+    
+    $sql = "INSERT INTO mods (file, name, description, icon, optional, recommended) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$modFile, $modName, $modDescription, $modIcon, 1, $modRecommended]);
 
-if ($stmt->rowCount() > 0) {
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $action = "Ajout du mod optionnel : " . $modName;
+    logAction($_SESSION['user_email'], $action);
+} elseif (isset($_POST["update_optional"])) {
+    $modId = $_POST["mod_id"];
+    $modName = $_POST["optional_name"];
+    $modDescription = $_POST["optional_description"];
+
+    $sql = "SELECT icon FROM mods WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':id', $modId);
+    $stmt->execute();
+    $currentImage = $stmt->fetchColumn();
+
+    $modIcon = uploadModImage($modId, $currentImage);
+
+    $modRecommended = isset($_POST["optional_recommended"]) ? 1 : 0;
+
+    $sql = "UPDATE mods SET name = ?, description = ?, icon = ?, recommended = ? WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$modName, $modDescription, $modIcon, $modRecommended, $modId]);
+
+    $action = "Modification du mod optionnel : $modName";
+    logAction($_SESSION['user_email'], $action);
+} elseif (isset($_POST["delete_optional"])) {
+    $modId = $_POST["mod_id"];
+
+    $sql = "DELETE FROM mods WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$modId]);
+
+    $action = "Suppression d'un mod optionnel";
+    logAction($_SESSION['user_email'], $action);
+}elseif (isset($_POST["submit_alert_settings"])) {
+    $alert_activation = isset($_POST["alert_activation"]) ? 1 : 0;
+    $alert_msg = $_POST["alert_msg"];
+
+    $sql = "UPDATE options SET alert_activation = ?, alert_msg = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$alert_activation, $alert_msg]);
+
+    $action = "Modification des paramètres d'alerte : activation $alert_activation, message $alert_msg";
+    logAction($_SESSION['user_email'], $action);
+}
 }
 function uploadServerImage($currentImage)
 {
@@ -257,7 +305,7 @@ function uploadServerImage($currentImage)
 }
 function uploadRoleImage($roleIndex, $currentBackground) {
     if (isset($_FILES["role" . $roleIndex . "_background"]) && $_FILES["role" . $roleIndex . "_background"]["error"] == 0) {
-        $targetDirectory = "uploads/";
+        $targetDirectory = "uploads";
         if (!file_exists($targetDirectory)) {
             mkdir($targetDirectory, 0777, true);
         }
@@ -272,6 +320,47 @@ function uploadRoleImage($roleIndex, $currentBackground) {
     }
     return $currentBackground;
 }
+function uploadModImage($modId, $currentImage)
+{
+    if (isset($_FILES["optional_image"]) && $_FILES["optional_image"]["error"] == UPLOAD_ERR_OK) {
+        $targetDirectory = "uploads/";
+        if (!file_exists($targetDirectory)) {
+            mkdir($targetDirectory, 0777, true);
+        }
+
+        $fileName = $_FILES["optional_image"]["name"];
+        $targetFile = $targetDirectory . basename($fileName);
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+        if (getimagesize($_FILES["optional_image"]["tmp_name"]) !== false) {
+            if (move_uploaded_file($_FILES["optional_image"]["tmp_name"], $targetFile)) {
+                return $targetFile;
+            } else {
+                die("Erreur lors du déplacement du fichier téléchargé.");
+            }
+        } else {
+            die("Le fichier téléchargé n'est pas une image valide.");
+        }
+    }
+    return $currentImage;
+}
+
+$modsDir = './data/files/mods';
+$modsData = [];
+$jarFiles = glob($modsDir . '/*.jar');
+foreach ($jarFiles as $index => $jarFile) {
+    $modsData[$index] = [
+        'file' => $jarFile,
+        'name' => basename($jarFile),
+        'description' => '',
+        'icon' => '',
+        'optional' => 0,
+    ];
+}
+
+$sql = "SELECT * FROM mods WHERE optional = 1";
+$optionalModsStmt = $pdo->query($sql);
+$optionalMods = $optionalModsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <?php
@@ -302,5 +391,6 @@ require_once './ui/header.php';
 <?php require_once './function/whitelist.php';?>    
 <?php require_once './function/roles.php';?>
 <?php require_once './function/ignore.php';?>
-<?php require_once './function/logs.php'; ?>
+<?php require_once './function/mods.php';?>
+<?php require_once './function/alert.php';?>
 <?php require_once './ui/footer.php';

@@ -7,7 +7,6 @@
     <title>Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-800 text-white">
     <nav class="bg-gray-900 p-4 static w-full z-10 top-0 shadow">
@@ -28,48 +27,56 @@
                         <a class="block 2xl:inline-block px-4 py-2" href="settings#loader-settings">Loader</a>
                     </li>
                     <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="settings#rpc-settings">Discord RPC</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="settings#splash-settings">Splash</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="block 2xl:inline-block px-4 py-2" href="settings#changelog-settings">Changelog</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="settings#maintenance-settings">Maintenance</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="settings#whitelist-settings">Whitelist</a>
                     </li>
                     <li class="nav-item">
                         <a class="block 2xl:inline-block px-4 py-2" href="settings#ignored-folders-settings">Dossiers Ignorés</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="settings#roles-settings">Fond d'écran par rôle</a>
-                    </li>
                 </ul>
                 <div class="flex items-center space-x-4 ml-auto mt-4 2xl:mt-0 relative">
-                    <div class="relative">
-                        <button id="settings-panel-button" data-dropdown-toggle="settings-panel-dropdown" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Paramètres Panel
+                    <div class="relative inline-block text-left">
+                        <button type="button" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-700" id="menu-button-other" aria-expanded="true" aria-haspopup="true">
+                            Autres
+                            <svg class="-mr-1 h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
                         </button>
-                        <div id="settings-panel-dropdown" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow">
-                            <ul class="py-1 text-gray-700">
-                                <li><form id="importForm" method="post" action="utils/import.php" enctype="multipart/form-data">
-                                        <label class="block px-4 py-2 hover:bg-gray-100 rounded cursor-pointer">
-                                            Importer
-                                            <input type="file" id="jsonFileInput" name="json_file" class="hidden" accept=".json" required>
-                                        </label>
-                                    </form></li>
-                                <li><a href="./utils/export" class="block px-4 py-2 hover:bg-gray-100">Exporter</a></li>
-                                <li><button id="updateButton" class="block px-4 py-2 hover:bg-gray-100">Mettre à jour</button></li>
-                                <li><a href="file" class="block px-4 py-2 hover:bg-gray-100">Gestionnaire de fichiers</a></li>
-                                <li><a href="account/new/register" class="block px-4 py-2 hover:bg-gray-100">Ajouter un utilisateur</a></li>
-                                <li><a href="logs/view" class="block px-4 py-2 hover:bg-gray-100">Logs</a></li>
-                            </ul>
+                        <div id="other-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button-other" tabindex="-1">
+                            <div class="py-1" role="none">
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1" href="settings#mods-settings">Mods optionnels</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-2" href="settings#roles-settings">Fond d'écran par rôle</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-3" href="settings#whitelist-settings">Whitelist</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-4" href="settings#maintenance-settings">Maintenance</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-5" href="settings#rpc-settings">Discord RPC</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-6" href="settings#splash-settings">Splash</a>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="relative inline-block text-left">
+                        <button type="button" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700" id="menu-button-settings" aria-expanded="true" aria-haspopup="true">
+                            Paramètres Panel
+                            <svg class="-mr-1 h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="settings-panel-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button-settings" tabindex="-1">
+                            <div class="py-1" role="none">
+                                <form id="importForm" method="post" action="utils/import.php" enctype="multipart/form-data">
+                                    <label class="block px-4 py-2 hover:bg-gray-100 text-gray-700 cursor-pointer" role="menuitem" tabindex="-1" id="menu-item-0">
+                                        Importer
+                                        <input type="file" id="jsonFileInput" name="json_file" class="hidden" accept=".json" required>
+                                    </label>
+                                </form>
+                                <a href="./utils/export" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1">Exporter</a>
+                                <button id="updateButton" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-2">Mettre à jour</button>
+                                <a href="file" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-3">Gestionnaire de fichiers</a>
+                                <a href="account/new/register" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-4">Ajouter un utilisateur</a>
+                                <a href="logs/view" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-5">Logs</a>
+                            </div>
+                        </div>
+                    </div>
+
                     <form class="flex items-center" method="post" action="">
                         <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" type="submit" name="logout">Déconnexion</button>
                     </form>
@@ -126,7 +133,30 @@
             };
             xhr.send('update_button=1');
         });
+
+        document.getElementById('menu-button-other').addEventListener('click', function() {
+            var dropdown = document.getElementById('other-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.getElementById('menu-button-settings').addEventListener('click', function() {
+            var dropdown = document.getElementById('settings-panel-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        window.addEventListener('click', function(e) {
+            var otherButton = document.getElementById('menu-button-other');
+            var otherDropdown = document.getElementById('other-dropdown');
+            if (!otherButton.contains(e.target) && !otherDropdown.contains(e.target)) {
+                otherDropdown.classList.add('hidden');
+            }
+
+            var settingsButton = document.getElementById('menu-button-settings');
+            var settingsDropdown = document.getElementById('settings-panel-dropdown');
+            if (!settingsButton.contains(e.target) && !settingsDropdown.contains(e.target)) {
+                settingsDropdown.classList.add('hidden');
+            }
+        });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 </html>
