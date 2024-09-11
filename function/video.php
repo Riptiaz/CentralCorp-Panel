@@ -1,7 +1,7 @@
 <div class="container mx-auto mt-10 p-6 bg-gray-900 text-white border border-gray-700 rounded-lg shadow-lg">
     <div class="grid grid-cols-1 gap-6">
         <div>
-            <form method="post" action="">
+            <form method="post" action="settings.php#video-settings">
                 <div id="video-settings">
                     <h2 class="text-3xl font-bold mb-6 text-gray-100 border-b border-gray-600 pb-2">Paramètres de la vidéo communautaire</h2>
                     <div class="mb-6">
