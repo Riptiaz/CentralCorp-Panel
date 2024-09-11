@@ -287,6 +287,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     logAction($_SESSION['user_email'], $action);
 }
 }
+$sql = "SELECT * FROM options";
+$stmt = $pdo->query($sql);
+
+if ($stmt->rowCount() > 0) {
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 function uploadServerImage($currentImage)
 {
     if (empty($_FILES['server_img']['tmp_name']) || $_FILES['server_img']['error'] !== UPLOAD_ERR_OK) {
