@@ -17,23 +17,33 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 
 $modsData = [];
+$optionalMods = [];
 
 while ($mods = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $modsId = $mods['id'];
     $modsName = $mods['name'];
     $modsDescription = $mods['description'];
-    $modsFile = $mods['file'];
+    $modsFile = basename($mods['file']);
     $modsIcon = (!empty($mods['icon'])) ? cleanImageUrl($mods['icon'], $baseURL) : "";
-    $modsData["mods" . $modsId] = [
-        "file" => $modsFile,
+    $isRecommended = !empty($mods['recommended']) && $mods['recommended'] == 1;
+
+    $modsData[$modsFile] = [
         "name" => $modsName,
         "description" => $modsDescription,
-        "icon" => $modsIcon
+        "icon" => $modsIcon,
+        "recommanded" => $isRecommended
     ];
+
+    $optionalMods[] = $modsFile;
 }
 
+$output = [
+    "optionalMods" => $optionalMods,
+    "mods" => $modsData
+];
+
 header('Content-Type: application/json');
-echo json_encode($modsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+echo json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ?>
 
 <?php

@@ -56,7 +56,11 @@ $data = [
     "rpc_button1_url" => $options["rpc_button1_url"],
     "rpc_button2" => $options["rpc_button2"],
     "rpc_button2_url" => $options["rpc_button2_url"],
-    "whitelist_activate" => (bool) $options["whitelist_activation"],      
+    "whitelist_activate" => (bool) $options["whitelist_activation"],
+    "alert_activate" => (bool) $options["alert_activation"],
+    "alert_msg" => $options["alert_msg"],
+    "video_activate" => (bool) $options["video_activation"],
+    "video_url" => $options["video_url"],      
 ];
 
 if (!empty($options["server_img"])) {
