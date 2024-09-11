@@ -275,6 +275,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $action = "Modification des paramètres d'alerte : activation $alert_activation, message $alert_msg";
     logAction($_SESSION['user_email'], $action);
+}elseif (isset($_POST["submit_video_settings"])) {
+    $video_activation = isset($_POST["video_activation"]) ? 1 : 0;
+    $video_url = $_POST["video_url"];
+
+    $sql = "UPDATE options SET video_activation = ?, video_url = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$video_activation, $video_url]);
+
+    $action = "Modification des paramètres vidéos : activation $video_activation, url $video_url";
+    logAction($_SESSION['user_email'], $action);
 }
 }
 function uploadServerImage($currentImage)
@@ -391,5 +401,6 @@ require_once './ui/header.php';
 <?php require_once './function/roles.php';?>
 <?php require_once './function/ignore.php';?>
 <?php require_once './function/mods.php';?>
-<?php require_once './function/alert.php';?> 
+<?php require_once './function/alert.php';?>
+<?php require_once './function/video.php';?>
 <?php require_once './ui/footer.php';

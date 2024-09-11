@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost
--- Généré le : dim. 30 juin 2024 à 18:46
--- Version du serveur : 11.4.2-MariaDB-ubu2204
--- Version de PHP : 8.1.28
+-- Généré le : mer. 11 sep. 2024 à 14:46
+-- Version du serveur : 11.4.3-MariaDB-ubu2204
+-- Version de PHP : 8.1.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -49,6 +49,24 @@ INSERT INTO `ignored_folders` (`folder_name`, `id`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `mods`
+--
+
+CREATE TABLE `mods` (
+  `id` int(11) NOT NULL,
+  `file` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `icon` varchar(255) DEFAULT NULL,
+  `optional` tinyint(1) DEFAULT 0,
+  `recommended` int(1) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `options`
 --
 
@@ -66,6 +84,7 @@ CREATE TABLE `options` (
   `server_port` int(11) DEFAULT NULL,
   `loader_type` varchar(50) DEFAULT NULL,
   `loader_build_version` varchar(50) DEFAULT NULL,
+  `loader_forge_version` varchar(50) DEFAULT NULL,
   `loader_activation` varchar(10) DEFAULT NULL,
   `changelog_version` varchar(20) DEFAULT NULL,
   `changelog_message` text DEFAULT NULL,
@@ -85,15 +104,19 @@ CREATE TABLE `options` (
   `rpc_button1_url` text NOT NULL,
   `rpc_button2` text NOT NULL,
   `rpc_button2_url` text NOT NULL,
-  `whitelist_activation` int(11) NOT NULL
+  `whitelist_activation` int(11) NOT NULL,
+  `alert_activation` int(1) DEFAULT NULL,
+  `alert_msg` text DEFAULT NULL,
+  `video_activation` int(11) DEFAULT NULL,
+  `video_url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `options`
 --
 
-INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`) VALUES
-(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 1, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '1.19.3-44.1.0', '1', '1.0.0', 'Derniere version du launcher', 0, 0, 'https://conflictura.site/storage/img/logo2.png', 'Ceci est du code', 'Riptiaz', 'https://conflictura.site', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.site', 0, '', 0);
+INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_forge_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `alert_activation`, `alert_msg`, `video_activation`, `video_url`) VALUES
+(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.12.2', 1, 1, 0, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '', '1.12.2-14.23.5.2860', '0', '1.0.0', 'Derniere version du launcher', 1, 0, '', 'Ceci est du code', 'Riptiaz', 'https://conflictura.site', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.site', 0, 0, 'Découvrez la nouvelle boutique!', 0, 'https://www.youtube.com/watch?v=spLl2sAj5X8');
 
 -- --------------------------------------------------------
 
@@ -112,14 +135,14 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
-(1, 'Membre', 'your image url'),
-(2, 'Fondateur', 'your image url'),
-(3, 'Dev', 'your image url'),
-(4, 'Modo', 'your image url'),
-(5, 'VIP', 'your image url'),
-(6, 'VIP+', 'your image url'),
-(7, 'VIP++', 'your image url'),
-(8, 'Co fonda', 'your image url');
+(1, 'Membre', 'uploads/rolesimage_2024-04-01_141617973-min.png'),
+(2, 'Fondateur', 'uploads/rolesconflictura logo petit.png'),
+(3, 'Dev', 'uploads/schéma akai apc mini chorale 2024.png'),
+(4, 'Modo', ''),
+(5, 'VIP', ''),
+(6, 'VIP+', ''),
+(7, 'VIP++', ''),
+(8, 'Co fonda', '');
 
 -- --------------------------------------------------------
 
@@ -146,6 +169,14 @@ CREATE TABLE `whitelist` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Déchargement des données de la table `whitelist`
+--
+
+INSERT INTO `whitelist` (`id`, `users`) VALUES
+(86, 'riptiaz'),
+(87, 'test');
+
+--
 -- Index pour les tables déchargées
 --
 
@@ -153,6 +184,12 @@ CREATE TABLE `whitelist` (
 -- Index pour la table `ignored_folders`
 --
 ALTER TABLE `ignored_folders`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `mods`
+--
+ALTER TABLE `mods`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -190,6 +227,12 @@ ALTER TABLE `ignored_folders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
+-- AUTO_INCREMENT pour la table `mods`
+--
+ALTER TABLE `mods`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `options`
 --
 ALTER TABLE `options`
@@ -205,7 +248,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `whitelist`
 --
 ALTER TABLE `whitelist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
