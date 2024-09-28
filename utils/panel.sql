@@ -20,7 +20,7 @@ CREATE TABLE `ignored_folders` (
   `folder_name` text NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `ignored_folders` (`folder_name`, `id`) VALUES
 ('crash-reports', 56),
@@ -43,7 +43,7 @@ CREATE TABLE `mods` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `options` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -87,7 +87,7 @@ CREATE TABLE `options` (
   `video_url` varchar(255) DEFAULT NULL,
   `email_verified` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_forge_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `alert_activation`, `alert_scroll`, `alert_msg`, `video_activation`, `video_url`, `email_verified`) VALUES
 (1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 0, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '', '1.19.3-44.1.23', '1', '1.0.0', 'Derniere version du launcher', 1, 1, '', 'Ceci est du code', 'Riptiaz', 'https://conflictura.eu', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.eu', 0, 1, 0, '<p><strong><u>Découvrez la nouvelle boutique!</u></strong></p>', 1, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 0);
@@ -97,7 +97,7 @@ CREATE TABLE `roles` (
   `role_name` text NOT NULL,
   `role_background` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 (1, 'Membre', ''),
@@ -115,13 +115,13 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `token` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `whitelist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `users` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `whitelist` (`id`, `users`) VALUES
 (116, 'Riptiaz');
@@ -130,7 +130,7 @@ CREATE TABLE `whitelist_roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `role` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `whitelist_roles` (`id`, `role`) VALUES
 (23, 'Admin');
