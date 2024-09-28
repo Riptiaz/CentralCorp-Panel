@@ -6,6 +6,27 @@ if (!file_exists($configFilePath)) {
     header('Location: setdb');
     exit();
 }
+$file = 'reset_password.php';
+
+if (file_exists($file)) {
+    echo "<h2>Attention !</h2>";
+    echo "<p>Le fichier <strong>reset_password.php</strong> existe à la racine.</p>";
+    echo "<p>Pour accéder au panel, veuillez le supprimer.</p>";
+    
+    echo '<form method="POST">';
+    echo '<button type="submit" name="delete_file" style="margin-right: 10px;">Supprimer le fichier</button>';
+    echo '</form>';
+
+    if (isset($_POST['delete_file'])) {
+        if (unlink($file)) {
+            echo "<p>Le fichier a été supprimé avec succès. Vous pouvez maintenant accéder au panel.</p>";
+            header("Location: settings");
+        } else {
+            echo "<p>Erreur lors de la suppression du fichier.</p>";
+        }
+    }
+    exit();
+}
 require_once './connexion_bdd.php';
 require('./auth.php');
 if (isset($_POST['logout'])) {
