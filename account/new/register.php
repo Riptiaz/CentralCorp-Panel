@@ -1,32 +1,35 @@
 <?php
 session_start();
-$configFilePath = '../conn.php';
+$configFilePath = '../../conn.php';
+
+if (isset($_POST['logout'])) {
+    session_unset();
+    session_destroy();
+    header('Location: ../connexion');
+    exit();
+}
 
 if (!file_exists($configFilePath)) {
-    header('Location: ../setdb');
+    header('Location: ../../setdb');
     exit();
 }
-require_once '../connexion_bdd.php';
+require_once '../../connexion_bdd.php';
+
 if (isset($_SESSION['user_token'])) {
-  $stmt = $pdo->prepare("SELECT * FROM users WHERE token = :token");
-  $stmt->bindParam(':token', $_SESSION['user_token']);
-  $stmt->execute();
-  $utilisateur = $stmt->fetch();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE token = :token");
+    $stmt->bindParam(':token', $_SESSION['user_token']);
+    $stmt->execute();
+    $utilisateur = $stmt->fetch();
 
-  if ($utilisateur) {
-      header('Location: accueil.php');
-      exit();
-  }
-}
-$sql = "SELECT COUNT(*) as count FROM users";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-if ($row['count'] > 0) {
-    header('Location: connexion');
+    if (!$utilisateur) {
+        header('Location: ../connexion');
+        exit();
+    }
+} else {
+    header('Location: ../connexion');
     exit();
 }
+
 if (isset($_POST['submit'])) {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
@@ -46,7 +49,7 @@ if (isset($_POST['submit'])) {
         $errors[] = "Les mots de passe ne correspondent pas.";
     }
 
-    require_once '../connexion_bdd.php';
+    require_once '../../connexion_bdd.php';
 
     $query = "SELECT id FROM users WHERE email = :email";
     $stmt = $pdo->prepare($query);
@@ -67,10 +70,13 @@ if (isset($_POST['submit'])) {
             'password' => $hashed_password
         ));
 
-        header('Location: connexion?register=success');
+        header('Location: succes.html');
         exit();
     }
 }
+$stmt = $pdo->prepare("SELECT email FROM users");
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -83,11 +89,15 @@ if (isset($_POST['submit'])) {
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
+
+<?php
+require_once '../../ui/header2.php';
+?>
 <body class="bg-gray-900 text-white">
     <div class="container mx-auto mt-20 p-6 bg-gray-900 text-white border border-gray-700 rounded-lg shadow-lg">
         <div class="flex justify-center">
             <div class="w-full max-w-md">
-                <h2 class="text-3xl font-bold mb-6 text-center">Inscription</h2>
+                <h2 class="text-3xl font-bold mb-6 text-center">Ajouter un utilisateur</h2>
                 <?php if (isset($errors) && count($errors) > 0) : ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                         <ul>
@@ -114,7 +124,7 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label for="confirm_password" class="block text-gray-400 text-sm font-medium mb-2">Confirmez votre mot de passe :</label>
+                        <label for="confirm_password" class="block text-gray-400 text-sm font-medium mb-2">Confirmez le mot de passe :</label>
                         <div class="relative">
                             <input type="password" name="confirm_password" id="confirm_password" class="form-input mt-1 block w-full rounded-lg border-gray-600 bg-gray-700 text-gray-200 p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
                             <i class="bi bi-lock-fill absolute right-10 top-2.5 text-gray-400"></i>
@@ -123,11 +133,21 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="flex items-center justify-center">
                         <button type="submit" name="submit" class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
-                            S'inscrire
+                            Ajouter
                         </button>
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+    <div class="container mx-auto mt-10 p-6 bg-gray-800 text-white border border-gray-700 rounded-lg shadow-lg">
+        <h2 class="text-3xl font-bold mb-6 text-center">Liste des utilisateurs</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach ($users as $user) : ?>
+                <div class="p-4 bg-gray-900 rounded-lg shadow-md">
+                    <h3 class="text-lg font-medium"><?php echo htmlspecialchars($user['email']); ?></h3>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
@@ -151,5 +171,7 @@ if (isset($_POST['submit'])) {
             this.classList.toggle('bi-eye-slash-fill');
         });
     </script>
+    <?php
+require_once '../../ui/footer.php';?>
 </body>
 </html>
