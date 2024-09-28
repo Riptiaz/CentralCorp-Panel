@@ -16,7 +16,7 @@ function getCurrentVersion() {
 }
 
 function getLatestVersion() {
-    $url = 'https://raw.githubusercontent.com/Riptiaz/CentralCorp-Panel/dev/update/version.txt';
+    $url = 'https://raw.githubusercontent.com/Riptiaz/CentralCorp-Panel/main/update/version.txt';
     $opts = [
         "http" => [
             "method" => "GET",
@@ -33,7 +33,7 @@ function isNewVersionAvailable($currentVersion, $latestVersion) {
 
 function updateFiles() {
     $zipFile = 'update.zip';
-    $url = 'https://github.com/Riptiaz/CentralCorp-Panel/archive/refs/heads/dev.zip';
+    $url = 'https://github.com/Riptiaz/CentralCorp-Panel/archive/refs/heads/main.zip';
 
     file_put_contents($zipFile, fopen($url, 'r'));
 
@@ -46,7 +46,7 @@ function updateFiles() {
         $zip->close();
         unlink($zipFile);
 
-        $innerFolder = $extractPath . '/CentralCorp-Panel-dev';
+        $innerFolder = $extractPath . '/CentralCorp-Panel-main';
         if (is_dir($innerFolder)) {
             $files = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($innerFolder, RecursiveDirectoryIterator::SKIP_DOTS),
