@@ -14,7 +14,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8 */;
 
 CREATE TABLE `ignored_folders` (
   `folder_name` text NOT NULL,
@@ -34,10 +34,10 @@ INSERT INTO `ignored_folders` (`folder_name`, `id`) VALUES
 
 CREATE TABLE `mods` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci NOT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci DEFAULT NULL,
-  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci DEFAULT NULL,
+  `file` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `description` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `optional` tinyint(1) DEFAULT 0,
   `recommended` int(1) DEFAULT 0, -- Modifié de NULL à 0 pour éviter NULL
   `created_at` timestamp NULL DEFAULT current_timestamp(),
@@ -128,7 +128,7 @@ INSERT INTO `whitelist` (`id`, `users`) VALUES
 
 CREATE TABLE `whitelist_roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `role` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `role` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
