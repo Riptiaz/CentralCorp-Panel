@@ -27,10 +27,13 @@
                         <a class="block 2xl:inline-block px-4 py-2" href="../../settings#loader-settings">Loader</a>
                     </li>
                     <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="../../settings#changelog-settings">Changelog</a>
+                        <a class="block 2xl:inline-block px-4 py-2" href="../../settings#mods-settings">Mods optionnels</a>
                     </li>
                     <li class="nav-item">
-                        <a class="block 2xl:inline-block px-4 py-2" href="../../settings#ignored-folders-settings">Dossiers Ignorés</a>
+                        <a class="block 2xl:inline-block px-4 py-2" href="../../settings#maintenance-settings">Maintenance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="block 2xl:inline-block px-4 py-2" href="../../settings#whitelist-settings">Whitelist</a>
                     </li>
                 </ul>
                 <div class="flex items-center space-x-4 ml-auto mt-4 2xl:mt-0 relative">
@@ -43,10 +46,10 @@
                         </button>
                         <div id="other-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button-other" tabindex="-1">
                             <div class="py-1" role="none">
-                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1" href="../../settings#mods-settings">Mods optionnels</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1" href="../../settings#video-settings">Vidéo communautaire</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1" href="../../settings#alert-settings">Alerte</a>
+                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1" href="../../settings#ignored-folders-settings">Dossiers ignorés</a>
                                 <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-2" href="../../settings#roles-settings">Fond d'écran par rôle</a>
-                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-3" href="../../settings#whitelist-settings">Whitelist</a>
-                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-4" href="../../settings#maintenance-settings">Maintenance</a>
                                 <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-5" href="../../settings#rpc-settings">Discord RPC</a>
                                 <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-6" href="../../settings#splash-settings">Splash</a>
                             </div>

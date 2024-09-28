@@ -41,8 +41,6 @@ require_once '../ui/header3.php';
     <div class="grid grid-cols-1 gap-6">
         <div id="logs-view">
             <h2 class="text-3xl font-bold mb-6 text-gray-100 border-b border-gray-600 pb-2">Visualisation des Logs</h2>
-            
-            <!-- Ajout du formulaire de purge des logs -->
             <form action="purge_logs.php" method="POST">
                 <button type="submit" name="purge_logs" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
                     Purger les Logs

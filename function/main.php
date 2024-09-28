@@ -78,6 +78,16 @@
                 </div>
 
                 <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Exiger une email vérifiée :</label>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                            class="form-checkbox h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500" id="email_verified"
+                            name="email_verified" <?php if ($row['email_verified'] == 1) echo 'checked'; ?>>
+                        <label for="email_verified" class="ml-2 block text-sm text-gray-400">Activer</label>
+                    </div>
+                </div>
+
+                <div class="mt-6">
                     <label class="block text-sm font-medium text-gray-400 mb-2">Affichage du rôle :</label>
                     <div class="flex items-center">
                         <input type="checkbox"

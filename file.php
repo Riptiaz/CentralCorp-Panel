@@ -46,22 +46,16 @@ $fullPath = realpath($baseDir . '/' . $currentDir);
 if ($fullPath === false || strpos($fullPath, $baseDir) !== 0) {
     die('Accès interdit ou chemin invalide.');
 }
-
-// Créer un dossier
 if (isset($_POST['create_folder']) && !empty($_POST['new_folder'])) {
     $newFolder = $fullPath . '/' . $_POST['new_folder'];
     if (!file_exists($newFolder)) {
         mkdir($newFolder, 0777, true);
     }
 }
-
-// Uploader un fichier
 if (isset($_POST['upload'])) {
     $uploadFile = $fullPath . '/' . basename($_FILES['upload_file']['name']);
     move_uploaded_file($_FILES['upload_file']['tmp_name'], $uploadFile);
 }
-
-// Extraire un fichier ZIP
 if (isset($_POST['extract_zip']) && isset($_FILES['upload_zip'])) {
     $zipFile = $fullPath . '/' . basename($_FILES['upload_zip']['name']);
     move_uploaded_file($_FILES['upload_zip']['tmp_name'], $zipFile);
@@ -72,8 +66,6 @@ if (isset($_POST['extract_zip']) && isset($_FILES['upload_zip'])) {
         unlink($zipFile); 
     }
 }
-
-// Supprimer un fichier ou un dossier
 if (isset($_GET['delete'])) {
     $deletePath = $baseDir . '/' . $_GET['delete'];
     if (is_file($deletePath)) {
@@ -82,8 +74,6 @@ if (isset($_GET['delete'])) {
         deleteDirectory($deletePath);
     }
 }
-
-// Supprimer les fichiers et dossiers sélectionnés
 if (isset($_POST['delete_selected']) && !empty($_POST['selected_files'])) {
     foreach ($_POST['selected_files'] as $file) {
         $deletePath = $fullPath . '/' . $file;
@@ -94,8 +84,6 @@ if (isset($_POST['delete_selected']) && !empty($_POST['selected_files'])) {
         }
     }
 }
-
-// Télécharger un fichier
 if (isset($_GET['download'])) {
     $filePath = $baseDir . '/' . $_GET['download'];
     if (is_file($filePath)) {
@@ -107,11 +95,6 @@ if (isset($_GET['download'])) {
         exit;
     }
 }
-
-
-
-
-// Fonction pour supprimer un dossier et son contenu
 function deleteDirectory($dir) {
     if (!file_exists($dir)) {
         return true;

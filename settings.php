@@ -113,18 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $action = "Modification des paramètres RPC : ID $rpc_id, détails $rpc_details, état $rpc_state, texte large $rpc_large_text, texte petit $rpc_small_text, activation $rpc_activation, bouton 1 $rpc_button1, URL bouton 1 $rpc_button1_url, bouton 2 $rpc_button2, URL bouton 2 $rpc_button2_url";
         logAction($_SESSION['user_email'], $action);
     
-    }elseif (isset($_POST["submit_changelog"])) {
-        $changelog_version = $_POST["changelog_version"];
-        $changelog_message = str_replace("\n", '<br>', $_POST["changelog_message"]);
-
-        $sql = "UPDATE options SET changelog_version = ?, changelog_message = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$changelog_version, $changelog_message]);
-
-        $action = "Modification du changelog : version $changelog_version, message $changelog_message";
-        logAction($_SESSION['user_email'], $action);
-
-    } elseif (isset($_POST["submit_splash_info"])) {
+    }elseif (isset($_POST["submit_splash_info"])) {
         $splash = $_POST["splash"];
         $splash_author = $_POST["splash_author"];
         
@@ -163,26 +152,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE options SET whitelist_activation = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$whitelist]);
-
         $whitelistUsers = $_POST["whitelist_users"];
         $usernamesArray = explode(',', $whitelistUsers);
         $usernamesArray = array_map('trim', $usernamesArray);
-
-        $sqlDelete = "DELETE FROM whitelist";
-        $pdo->exec($sqlDelete);
-
-        $sqlInsert = "INSERT INTO whitelist (users) VALUES (:users)";
-        $stmt = $pdo->prepare($sqlInsert);
-
+    
+        $sqlDeleteUsers = "DELETE FROM whitelist";
+        $pdo->exec($sqlDeleteUsers);
+    
+        $sqlInsertUsers = "INSERT INTO whitelist (users) VALUES (:users)";
+        $stmtUsers = $pdo->prepare($sqlInsertUsers);
+    
         foreach ($usernamesArray as $username) {
-            $stmt->bindParam(':users', $username);
-            $stmt->execute();
+            $stmtUsers->bindParam(':users', $username);
+            $stmtUsers->execute();
         }
-
-        $action = "Mise à jour de la liste blanche : activation $whitelist, utilisateurs $whitelistUsers";
+        $whitelistRoles = $_POST["whitelist_roles"];
+        $rolesArray = explode(',', $whitelistRoles);
+        $rolesArray = array_map('trim', $rolesArray);
+    
+        $sqlDeleteRoles = "DELETE FROM whitelist_roles";
+        $pdo->exec($sqlDeleteRoles);
+    
+        $sqlInsertRoles = "INSERT INTO whitelist_roles (role) VALUES (:role)";
+        $stmtRoles = $pdo->prepare($sqlInsertRoles);
+    
+        foreach ($rolesArray as $role) {
+            $stmtRoles->bindParam(':role', $role);
+            $stmtRoles->execute();
+        }
+        $action = "Mise à jour de la liste blanche : activation $whitelist, utilisateurs $whitelistUsers, rôles $whitelistRoles";
         logAction($_SESSION['user_email'], $action);
-
-    }elseif (isset($_POST["submit_general_settings"])) {
+    }
+    elseif (isset($_POST["submit_general_settings"])) {
         
             $role = isset($_POST["role"]) ? 1 : 0;
             $sql = "UPDATE options SET role = ?";
@@ -193,6 +194,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql = "UPDATE options SET money = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$money]);
+
+            $email_verified = isset($_POST["email_verified"]) ? 1 : 0;
+            $sql = "UPDATE options SET email_verified = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$email_verified]);
           
             $game_folder_name = $_POST["game_folder_name"];
             $sql = "UPDATE options SET game_folder_name = ?";
@@ -267,13 +273,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     logAction($_SESSION['user_email'], $action);
 }elseif (isset($_POST["submit_alert_settings"])) {
     $alert_activation = isset($_POST["alert_activation"]) ? 1 : 0;
+    $alert_scroll = isset($_POST["alert_scroll"]) ? 1 : 0;
     $alert_msg = $_POST["alert_msg"];
 
-    $sql = "UPDATE options SET alert_activation = ?, alert_msg = ?";
+    $sql = "UPDATE options SET alert_activation = ?, alert_scroll = ?, alert_msg = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$alert_activation, $alert_msg]);
+    $stmt->execute([$alert_activation, $alert_scroll, $alert_msg]);
 
-    $action = "Modification des paramètres d'alerte : activation $alert_activation, message $alert_msg";
+    $action = "Modification des paramètres d'alerte : activation $alert_activation, scroll $alert_scroll, message $alert_msg";
     logAction($_SESSION['user_email'], $action);
 }elseif (isset($_POST["submit_video_settings"])) {
     $video_activation = isset($_POST["video_activation"]) ? 1 : 0;
@@ -401,7 +408,6 @@ require_once './ui/header.php';
 <?php require_once './function/splash.php';?>
 <?php require_once './function/loader.php';?>           
 <?php require_once './function/rpc.php';?>           
-<?php require_once './function/changelog.php';?>
 <?php require_once './function/maintenance.php';?>
 <?php require_once './function/whitelist.php';?>  
 <?php require_once './function/roles.php';?>

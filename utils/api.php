@@ -58,9 +58,11 @@ $data = [
     "rpc_button2_url" => $options["rpc_button2_url"],
     "whitelist_activate" => (bool) $options["whitelist_activation"],
     "alert_activate" => (bool) $options["alert_activation"],
+    "alert_scroll" => (bool) $options["alert_scroll"],
     "alert_msg" => $options["alert_msg"],
     "video_activate" => (bool) $options["video_activation"],
-    "video_url" => $options["video_url"],      
+    "video_url" => extractYouTubeVideoId($options["video_url"]),
+    "email_verified" => (bool) $options["email_verified"],
 ];
 
 if (!empty($options["server_img"])) {
@@ -108,6 +110,17 @@ while ($rowWhitelist = $stmtWhitelist->fetch(PDO::FETCH_ASSOC)) {
 
 $data["whitelist"] = $whitelistUsers;
 
+$sqlWhitelist_role = "SELECT role FROM whitelist_roles";
+$stmtWhitelist_role = $pdo->query($sqlWhitelist_role);
+
+$whitelist_role = [];
+
+while ($rowWhitelist_role = $stmtWhitelist_role->fetch(PDO::FETCH_ASSOC)) {
+    $whitelist_role[] = $rowWhitelist_role['role'];
+}
+
+$data["whitelist_roles"] = $whitelist_role;
+
 header('Content-Type: application/json');
 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ?>
@@ -116,5 +129,11 @@ echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 function cleanImageUrl($imagePath, $baseURL) {
     $cleanPath = ltrim($imagePath, './');
     return $baseURL . '/' . $cleanPath;
+}
+
+function extractYouTubeVideoId($url) {
+    $pattern = '/(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.*v=|v=)?([a-zA-Z0-9_-]{11})/';
+    preg_match($pattern, $url, $matches);
+    return $matches[1] ?? "";
 }
 ?>

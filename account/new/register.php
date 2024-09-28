@@ -74,8 +74,6 @@ if (isset($_POST['submit'])) {
         exit();
     }
 }
-
-// Récupération de la liste des utilisateurs
 $stmt = $pdo->prepare("SELECT email FROM users");
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
