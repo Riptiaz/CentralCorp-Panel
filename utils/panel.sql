@@ -155,10 +155,7 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 
 -- --------------------------------------------------------
 
---
 -- Structure de la table `test`
---
-
 CREATE TABLE `test` (
   `id` int(11) NOT NULL,
   `test` text NOT NULL
