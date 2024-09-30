@@ -93,15 +93,19 @@ function updateDatabase($pdo) {
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
+    $newTables = [];
 
     foreach ($tableSegments as $segment) {
         preg_match('/`(\w+)`/', $segment, $tableMatch);
         $tableName = $tableMatch[1];
+        $newTables[] = $tableName;
+
         $matches = [];
         preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
         $newColumns = array_combine($matches[1], $matches[2]);
         $existingColumns = [];
         $result = $pdo->query("SHOW COLUMNS FROM $tableName");
+
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $existingColumns[$row['Field']] = $row['Type'];
         }
@@ -114,6 +118,32 @@ function updateDatabase($pdo) {
             }
         }
     }
+    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+
+    foreach ($existingTables as $existingTable) {
+        if (!in_array($existingTable, $newTables)) {
+            $pdo->exec("DROP TABLE `$existingTable`");
+        } else {
+            $result = $pdo->query("SHOW COLUMNS FROM `$existingTable`");
+            $currentColumns = [];
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $currentColumns[] = $row['Field'];
+            }
+            foreach ($currentColumns as $currentColumn) {
+                $columnExistsInNew = false;
+                foreach ($tableSegments as $segment) {
+                    if (strpos($segment, "`$currentColumn`") !== false) {
+                        $columnExistsInNew = true;
+                        break;
+                    }
+                }
+                if (!$columnExistsInNew) {
+                    $pdo->exec("ALTER TABLE `$existingTable` DROP COLUMN `$currentColumn`");
+                }
+            }
+        }
+    }
+
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
 
