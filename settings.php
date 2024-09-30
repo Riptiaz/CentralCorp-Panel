@@ -404,26 +404,77 @@ $sql = "SELECT * FROM mods WHERE optional = 1";
 $optionalModsStmt = $pdo->query($sql);
 $optionalMods = $optionalModsStmt->fetchAll(PDO::FETCH_ASSOC);
 
+function getCurrentVersion() {
+    return trim(file_get_contents('update/version.txt'));
+}
+
+function getLatestVersion() {
+    $url = 'https://raw.githubusercontent.com/Riptiaz/CentralCorp-Panel/main/update/version.txt';
+    $opts = [
+        "http" => [
+            "method" => "GET",
+            "header" => "Cache-Control: no-cache, no-store, must-revalidate\r\n"
+        ]
+    ];
+    $context = stream_context_create($opts);
+    return trim(file_get_contents($url, false, $context));
+}
+
+function isNewVersionAvailable($currentVersion, $latestVersion) {
+    return version_compare($currentVersion, $latestVersion, '<');
+}
+
+$currentVersion = getCurrentVersion();
+$latestVersion = getLatestVersion();
+$isNewVersionAvailable = isNewVersionAvailable($currentVersion, $latestVersion);
 
 ?>
 <?php
 require_once './ui/header.php';
 ?>
 <style>
-    
-    .scroll-to-top {
+ .scroll-to-top {
       position: fixed;
       bottom: 2rem;
       right: 2rem;
       z-index: 10;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <?php if ($isNewVersionAvailable): ?>
+    <script>
+        Swal.fire({
+    title: 'Mise à jour disponible',
+    text: 'Voulez-vous mettre à jour maintenant?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Oui, mettre à jour!',
+    cancelButtonText: 'Non, annuler'
+}).then((result) => {
+    if (result.isConfirmed) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'update/update.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+                document.getElementById('updateMessage').innerText = response.message;
+                if (response.success) {
+                    document.getElementById('confirmUpdateButton').style.display = 'none';
+                    document.getElementById('cancelUpdateButton').innerText = 'Ok';
+                }
+            }
+        };
+        xhr.send('update_button=1');
+    }
+});
+    </script>
+<?php endif; ?>
    <a href="#" class="scroll-to-top bg-gray-900 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
     </svg>
   </a>
-
 <?php require_once './function/main.php';?>
 <?php require_once './function/serveur.php';?>
 <?php require_once './function/splash.php';?>
