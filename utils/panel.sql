@@ -236,6 +236,8 @@ ALTER TABLE `mods`
 ALTER TABLE `options`
   ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `test`
+  ADD PRIMARY KEY (`id`);
 --
 -- Index pour la table `roles`
 --
