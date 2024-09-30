@@ -84,12 +84,12 @@ function updateFiles() {
         return false;
     }
 }
-
 function updateDatabase($pdo) {
     $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
         return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
+    
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
@@ -103,12 +103,25 @@ function updateDatabase($pdo) {
         $matches = [];
         preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
         $newColumns = array_combine($matches[1], $matches[2]);
-        $existingColumns = [];
+        
+        // Vérifiez d'abord si la table existe
+        $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!in_array($tableName, $existingTables)) {
+            // Créez la table si elle n'existe pas
+            if ($pdo->exec($segment) === false) {
+                return ['success' => false, 'message' => "Erreur lors de la création de la table '$tableName'."];
+            }
+        }
+        
+        // Récupérez les colonnes existantes
         $result = $pdo->query("SHOW COLUMNS FROM $tableName");
-
+        $existingColumns = [];
+        
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $existingColumns[$row['Field']] = $row['Type'];
         }
+        
         foreach ($newColumns as $column => $type) {
             if (!array_key_exists($column, $existingColumns)) {
                 $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
@@ -118,8 +131,10 @@ function updateDatabase($pdo) {
             }
         }
     }
-    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
 
+    // Suppression des anciennes tables
+    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    
     foreach ($existingTables as $existingTable) {
         if (!in_array($existingTable, $newTables)) {
             $pdo->exec("DROP TABLE `$existingTable`");
@@ -146,7 +161,6 @@ function updateDatabase($pdo) {
 
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();

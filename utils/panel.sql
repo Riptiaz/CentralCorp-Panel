@@ -161,7 +161,7 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 
 CREATE TABLE `test` (
   `id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- --------------------------------------------------------
 

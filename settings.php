@@ -440,34 +440,37 @@ require_once './ui/header.php';
       z-index: 10;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <?php if ($isNewVersionAvailable): ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if ($isNewVersionAvailable): ?>
     <script>
         Swal.fire({
-    title: 'Mise à jour disponible',
-    text: 'Voulez-vous mettre à jour maintenant?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Oui, mettre à jour!',
-    cancelButtonText: 'Non, annuler'
-}).then((result) => {
-    if (result.isConfirmed) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'update/update.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-                document.getElementById('updateMessage').innerText = response.message;
-                if (response.success) {
-                    document.getElementById('confirmUpdateButton').style.display = 'none';
-                    document.getElementById('cancelUpdateButton').innerText = 'Ok';
-                }
+            title: 'Mise à jour disponible',
+            text: 'Voulez-vous mettre à jour maintenant?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, mettre à jour!',
+            cancelButtonText: 'Non, annuler',
+            html: '<div id="updateMessage"></div>', // Ajout de la div ici
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'update/update.php', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        // Mettre à jour le message dans la div
+                        document.getElementById('updateMessage').innerText = response.message;
+                        if (response.success) {
+                            // Si la mise à jour est réussie, ajustez les boutons
+                            document.getElementById('confirmUpdateButton').style.display = 'none';
+                            document.getElementById('cancelUpdateButton').innerText = 'Ok';
+                        }
+                    }
+                };
+                xhr.send('update_button=1');
             }
-        };
-        xhr.send('update_button=1');
-    }
-});
+        });
     </script>
 <?php endif; ?>
    <a href="#" class="scroll-to-top bg-gray-900 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out">
