@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
 </head>
 <body class="bg-gray-800 text-white">
     <nav class="bg-gray-900 p-4 static w-full z-10 top-0 shadow">
@@ -98,10 +99,7 @@
                                 </form>
                                 <a href="./utils/export" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-1">
                                     <i class="bi bi-file-earmark-arrow-down mr-2"></i> Exporter
-                                </a>
-                                <button id="updateButton" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-2">
-                                    <i class="bi bi-arrow-clockwise mr-2"></i> Mettre à jour
-                                </button>                               
+                                </a>                         
                                 <a href="file" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-5">
                                     <i class="bi bi-folder mr-2"></i> Fichiers Panel
                                 </a>                                
@@ -123,19 +121,6 @@
             </div>
         </div>
     </nav>
-    <div id="updateOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
-    <div id="updatePopup" class="fixed inset-0 bg-gray-700 p-4 rounded shadow-lg w-1/3 mx-auto mt-20 hidden">
-        <div class="flex flex-col items-center justify-center h-full">
-            <div class="text-center">
-                <h2 class="text-xl font-bold mb-4">Mise à jour du système</h2>
-                <p id="updateMessage" class="mb-4">Voulez-vous vraiment mettre à jour le système ?</p>
-                <div class="flex justify-center">
-                    <button id="confirmUpdateButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2">Oui</button>
-                    <button id="cancelUpdateButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Non</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <script>
         document.getElementById('jsonFileInput').addEventListener('change', function() {
             document.getElementById('importForm').submit();
@@ -144,33 +129,6 @@
         document.getElementById('nav-toggle').addEventListener('click', function() {
             var navContent = document.getElementById('nav-content');
             navContent.classList.toggle('hidden');
-        });
-
-        document.getElementById('updateButton').addEventListener('click', function() {
-            document.getElementById('updateOverlay').classList.remove('hidden');
-            document.getElementById('updatePopup').classList.remove('hidden');
-        });
-
-        document.getElementById('cancelUpdateButton').addEventListener('click', function() {
-            document.getElementById('updateOverlay').classList.add('hidden');
-            document.getElementById('updatePopup').classList.add('hidden');
-        });
-
-        document.getElementById('confirmUpdateButton').addEventListener('click', function() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'update/update.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    document.getElementById('updateMessage').innerText = response.message;
-                    if (response.success) {
-                        document.getElementById('confirmUpdateButton').style.display = 'none';
-                        document.getElementById('cancelUpdateButton').innerText = 'Ok';
-                    }
-                }
-            };
-            xhr.send('update_button=1');
         });
 
         document.getElementById('menu-button-other').addEventListener('click', function() {
@@ -198,5 +156,6 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 </body>
 </html>

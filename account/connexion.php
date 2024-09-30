@@ -140,30 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfQWIglAAAAAEzTj18fKpd0udB2MBkUojHnRr3p"></script>
-    <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
-
-    togglePassword.addEventListener('click', function(e) {
-        
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        
-        this.classList.toggle('bi-eye-fill');
-        this.classList.toggle('bi-eye-slash-fill');
-    });
-    </script>
-
-    <script>
-    grecaptcha.enterprise.ready(function() {
-        grecaptcha.enterprise.execute('6LfQWIglAAAAAEzTj18fKpd0udB2MBkUojHnRr3p', {
-            action: 'login'
-        }).then(function(token) {});
-    });
-    </script>
-
 </body>
 
 </html>
