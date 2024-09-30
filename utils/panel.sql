@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost
--- Généré le : lun. 30 sep. 2024 à 21:58
+-- Généré le : lun. 30 sep. 2024 à 22:29
 -- Version du serveur : 11.4.3-MariaDB-ubu2204
 -- Version de PHP : 8.1.30
 
@@ -156,14 +156,13 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `test`
+-- Structure de la table `test_db`
 --
 
-CREATE TABLE `test` (
+CREATE TABLE `test_db` (
   `id` int(11) NOT NULL,
-  `test` text NOT NULL
+  `test` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-
 
 -- --------------------------------------------------------
 
@@ -236,12 +235,16 @@ ALTER TABLE `mods`
 ALTER TABLE `options`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `test`
-  ADD PRIMARY KEY (`id`);
 --
 -- Index pour la table `roles`
 --
 ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `test_db`
+--
+ALTER TABLE `test_db`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -289,6 +292,12 @@ ALTER TABLE `options`
 --
 ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT pour la table `test_db`
+--
+ALTER TABLE `test_db`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `users`
