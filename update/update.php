@@ -98,8 +98,12 @@ function updateDatabase($pdo) {
     // Récupérer les tables existantes
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
+    $transactionActive = false;
+
     try {
+        // Démarrer la transaction
         $pdo->beginTransaction();
+        $transactionActive = true;
         
         // 1. Création des nouvelles tables
         foreach ($tableSegments as $segment) {
@@ -174,14 +178,19 @@ function updateDatabase($pdo) {
             }
         }
 
+        // Commit seulement après que tout se soit bien passé
         $pdo->commit();
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 
     } catch (Exception $e) {
-        $pdo->rollBack();
+        // Rollback seulement si la transaction a été démarrée
+        if ($transactionActive) {
+            $pdo->rollBack();
+        }
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
