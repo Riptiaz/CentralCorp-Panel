@@ -108,13 +108,13 @@ function updateDatabase($pdo) {
                 $newTables[] = $tableName;
 
                 if (!in_array($tableName, $existingTables)) {
-                    echo "Création de la table : $tableName\n";
+                    error_log("Création de la table : $tableName");
                     if ($pdo->exec($segment) === false) {
                         throw new Exception("Erreur lors de la création de la table '$tableName'.");
                     }
                 }
             } else {
-                echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
+                error_log("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
             }
         }
 
@@ -134,7 +134,7 @@ function updateDatabase($pdo) {
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
                     $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                    echo "Ajout de la colonne : $column à la table $tableName\n";
+                    error_log("Ajout de la colonne : $column à la table $tableName");
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
                     }
@@ -146,15 +146,12 @@ function updateDatabase($pdo) {
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
         
     } catch (Exception $e) {
-        // Assurez-vous que la rollback est appelée seulement si une transaction a été commencée
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
-
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();
