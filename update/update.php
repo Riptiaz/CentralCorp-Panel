@@ -97,11 +97,8 @@ function updateDatabase($pdo) {
     
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
-    $transactionActive = false;
-
     try {
         $pdo->beginTransaction();
-        $transactionActive = true;
         
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment;
@@ -125,7 +122,7 @@ function updateDatabase($pdo) {
             preg_match('/`(\w+)`/', $segment, $tableMatch);
             $tableName = $tableMatch[1];
 
-            $result = $pdo->query("SHOW COLUMNS FROM $tableName");
+            $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
             $existingColumns = [];
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $existingColumns[$row['Field']] = $row['Type'];
@@ -136,7 +133,7 @@ function updateDatabase($pdo) {
 
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
-                    $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                    $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
                     echo "Ajout de la colonne : $column à la table $tableName\n";
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
@@ -144,11 +141,13 @@ function updateDatabase($pdo) {
                 }
             }
         }
+
         $pdo->commit();
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
-
+        
     } catch (Exception $e) {
-        if ($transactionActive) {
+        // Assurez-vous que la rollback est appelée seulement si une transaction a été commencée
+        if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         return ['success' => false, 'message' => $e->getMessage()];
