@@ -89,15 +89,18 @@ function updateDatabase($pdo) {
     if (!file_exists($sqlFilePath)) {
         return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
-    
+
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
     $newTables = [];
-    
+
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
     try {
+        // Commencer la transaction ici
+        $pdo->beginTransaction(); 
+
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment;
             preg_match('/`(\w+)`/', $segment, $tableMatch);
@@ -139,10 +142,16 @@ function updateDatabase($pdo) {
                 }
             }
         }
-        $pdo->commit();
+        
+        // Valider la transaction
+        $pdo->commit(); 
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 
     } catch (Exception $e) {
+        // Vérifier si une transaction est active avant de faire le rollback
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack(); 
+        }
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
