@@ -129,30 +129,6 @@ INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_ve
 
 -- --------------------------------------------------------
 
---
--- Structure de la table `roles`
---
-
-CREATE TABLE `roles` (
-  `id` int(11) NOT NULL,
-  `role_name` text NOT NULL,
-  `role_background` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-
---
--- Déchargement des données de la table `roles`
---
-
-INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
-(1, 'Membre', ''),
-(2, 'Fondateur', ''),
-(3, 'Dev', ''),
-(4, 'Modo', ''),
-(5, 'VIP', ''),
-(6, 'VIP+', ''),
-(7, 'VIP++', ''),
-(8, 'Co fonda', '');
-
 -- --------------------------------------------------------
 
 --
@@ -237,12 +213,6 @@ ALTER TABLE `options`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `roles`
---
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Index pour la table `test_db`
 --
 ALTER TABLE `test_db`
@@ -291,9 +261,6 @@ ALTER TABLE `options`
 --
 -- AUTO_INCREMENT pour la table `roles`
 --
-ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
 --
 -- AUTO_INCREMENT pour la table `test_db`
 --
