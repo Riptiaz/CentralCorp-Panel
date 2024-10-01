@@ -164,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
             $dbUpdateResult = updateDatabase($pdo);
             if ($dbUpdateResult['success']) {
                 file_put_contents('version.txt', $latestVersion);
+                // Indiquer que la mise à jour est terminée ici
                 echo json_encode(['success' => true, 'message' => "Mise à jour terminée avec succès à la version $latestVersion."]);
             } else {
                 echo json_encode($dbUpdateResult);
