@@ -89,22 +89,22 @@ function updateDatabase($pdo) {
     if (!file_exists($sqlFilePath)) {
         return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
-    
+
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments); // Supprimer la première partie qui est vide avant le premier 'CREATE TABLE'
     $newTables = [];
-    
+
     // Récupérer les tables existantes
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-    
+
     $transactionActive = false;
 
     try {
         // Démarrer la transaction
         $pdo->beginTransaction();
         $transactionActive = true;
-        
+
         // 1. Création des nouvelles tables
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment; // Ajouter 'CREATE TABLE' car il a été supprimé par explode
@@ -152,26 +152,26 @@ function updateDatabase($pdo) {
             }
         }
 
-        // 3. Suppression des anciennes tables et colonnes
-        foreach ($existingTables as $existingTable) {
-            if (!in_array($existingTable, $newTables)) {
-                echo "Suppression de la table : $existingTable\n"; // Debug : affiche la table en cours de suppression
-                if ($pdo->exec("DROP TABLE `$existingTable`") === false) {
-                    throw new Exception("Erreur lors de la suppression de la table '$existingTable'.");
-                }
-            } else {
-                $result = $pdo->query("SHOW COLUMNS FROM `$existingTable`");
-                $currentColumns = [];
-                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $currentColumns[] = $row['Field'];
-                }
+        // 3. Suppression des anciennes colonnes
+        foreach ($newTables as $tableName) {
+            // Récupérer les colonnes définies dans panel.sql pour cette table
+            $segment = array_values(array_filter($tableSegments, function ($segment) use ($tableName) {
+                return strpos($segment, "`$tableName`") !== false;
+            }))[0];
 
-                // Supprimer les colonnes qui ne sont plus dans la nouvelle définition SQL
-                foreach ($currentColumns as $currentColumn) {
-                    if (!isset($newColumns[$currentColumn])) {
-                        echo "Suppression de la colonne : $currentColumn de la table $existingTable\n"; // Debug : affiche la colonne en cours de suppression
-                        if ($pdo->exec("ALTER TABLE `$existingTable` DROP COLUMN `$currentColumn`") === false) {
-                            throw new Exception("Erreur lors de la suppression de la colonne '$currentColumn' dans la table '$existingTable'.");
+            preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
+            $newColumns = array_combine($matches[1], $matches[2]);
+
+            // Récupérer les colonnes existantes dans la base de données
+            $existingColumns = $pdo->query("SHOW COLUMNS FROM `$tableName`")->fetchAll(PDO::FETCH_COLUMN);
+
+            foreach ($existingColumns as $existingColumn) {
+                if (!array_key_exists($existingColumn, $newColumns)) {
+                    // Supprimer les colonnes qui ne sont pas dans la nouvelle définition
+                    echo "Suppression de la colonne : $existingColumn de la table $tableName\n"; // Debug : affiche la colonne en cours de suppression
+                    if ($existingColumn != 'id') { // Ne pas supprimer la colonne 'id'
+                        if ($pdo->exec("ALTER TABLE `$tableName` DROP COLUMN `$existingColumn`") === false) {
+                            throw new Exception("Erreur lors de la suppression de la colonne '$existingColumn' dans la table '$tableName'.");
                         }
                     }
                 }
@@ -190,7 +190,6 @@ function updateDatabase($pdo) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
