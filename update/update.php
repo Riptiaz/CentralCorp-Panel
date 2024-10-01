@@ -134,7 +134,7 @@ function updateDatabase($pdo) {
                 }
             }
         }
-        
+    }    
 
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
