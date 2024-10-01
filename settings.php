@@ -463,17 +463,15 @@ Swal.fire({
                     // Mettre à jour le message dans la div
                     document.getElementById('updateMessage').innerText = response.message;
 
+                    // Afficher le message de succès ou d'erreur après avoir mis à jour le message
                     if (response.success) {
                         // Afficher le message de succès
                         Swal.fire({
                             title: 'Mise à jour réussie',
-                            text: 'La base de données a été mise à jour avec succès.',
+                            text: response.message, // Utilise le message de la réponse
                             icon: 'success',
                             confirmButtonText: 'Fermer'
                         });
-                        // Ajustez les boutons de l'alerte précédente
-                        document.getElementById('confirmUpdateButton').style.display = 'none';
-                        document.getElementById('cancelUpdateButton').innerText = 'Ok';
                     } else {
                         // Afficher le message d'erreur
                         Swal.fire({
