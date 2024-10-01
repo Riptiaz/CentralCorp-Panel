@@ -87,7 +87,7 @@ function updateFiles() {
 function updateDatabase($pdo) {
     $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
-        return ['success' => false, 'message' => json_encode("Fichier panel.sql introuvable.")];
+        return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
     
     $sqlContent = file_get_contents($sqlFilePath);
@@ -98,7 +98,7 @@ function updateDatabase($pdo) {
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
     try {
-        $pdo->beginTransaction(); // Commencer la transaction ici
+        $pdo->beginTransaction(); // Commencer la transaction
         
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment;
@@ -108,12 +108,13 @@ function updateDatabase($pdo) {
                 $newTables[] = $tableName;
 
                 if (!in_array($tableName, $existingTables)) {
+                    echo "Création de la table : $tableName\n";
                     if ($pdo->exec($segment) === false) {
                         throw new Exception("Erreur lors de la création de la table '$tableName'.");
                     }
                 }
             } else {
-                throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
+                echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
             }
         }
 
@@ -133,6 +134,7 @@ function updateDatabase($pdo) {
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
                     $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
+                    echo "Ajout de la colonne : $column à la table $tableName\n";
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
                     }
@@ -140,13 +142,14 @@ function updateDatabase($pdo) {
             }
         }
 
-        $pdo->commit(); // Commit seulement si tout a réussi
+        // Tout s'est bien passé, valider la transaction
+        $pdo->commit();
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
-        
+
     } catch (Exception $e) {
-        // Vérifier si une transaction est active avant de faire un rollback
+        // Vérifier si une transaction est active avant de faire le rollback
         if ($pdo->inTransaction()) {
-            $pdo->rollBack(); // Annuler seulement si la transaction est active
+            $pdo->rollBack();
         }
         return ['success' => false, 'message' => $e->getMessage()];
     }
