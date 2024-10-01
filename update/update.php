@@ -147,10 +147,6 @@ function updateDatabase($pdo) {
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 
     } catch (Exception $e) {
-        // Vérifier si une transaction est active avant de faire le rollback
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
