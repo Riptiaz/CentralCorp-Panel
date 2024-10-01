@@ -129,13 +129,12 @@ function updateDatabase($pdo) {
         foreach ($newColumns as $column => $type) {
             if (!array_key_exists($column, $existingColumns)) {
                 $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                echo "Ajout de la colonne : $column à la table $tableName\n";
                 if ($pdo->exec($alterQuery) === false) {
                     return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
                 }
             }
         }
-    }
+        
 
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
