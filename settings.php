@@ -450,7 +450,7 @@ Swal.fire({
     showCancelButton: true,
     confirmButtonText: 'Oui, mettre à jour!',
     cancelButtonText: 'Non, annuler',
-    html: '<div id="updateMessage"></div>' // Ajout de la div ici
+    html: '<div id="updateMessage"></div>', // Ajout de la div ici
 }).then((result) => {
     if (result.isConfirmed) {
         var xhr = new XMLHttpRequest();
@@ -458,23 +458,39 @@ Swal.fire({
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-                // Mettre à jour le message dans la div après avoir créé la boîte de dialogue
-                const updateMessageDiv = Swal.getHtmlContainer().querySelector('#updateMessage');
-                if (updateMessageDiv) {
-                    updateMessageDiv.innerText = response.message;
-                }
-                if (response.success) {
-                    // Si la mise à jour est réussie, afficher le message de succès
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    // Mettre à jour le message dans la div
+                    document.getElementById('updateMessage').innerText = response.message;
+
+                    if (response.success) {
+                        // Afficher le message de succès
+                        Swal.fire({
+                            title: 'Mise à jour réussie',
+                            text: 'La base de données a été mise à jour avec succès.',
+                            icon: 'success',
+                            confirmButtonText: 'Fermer'
+                        });
+                        // Ajustez les boutons de l'alerte précédente
+                        document.getElementById('confirmUpdateButton').style.display = 'none';
+                        document.getElementById('cancelUpdateButton').innerText = 'Ok';
+                    } else {
+                        // Afficher le message d'erreur
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Fermer'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de l'analyse de la réponse JSON : ", error);
                     Swal.fire({
-                        title: 'Mise à jour réussie',
-                        text: 'La base de données a été mise à jour avec succès.',
-                        icon: 'success',
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue lors de la mise à jour.',
+                        icon: 'error',
                         confirmButtonText: 'Fermer'
                     });
-                    // Ajustez les boutons de l'alerte précédente
-                    document.getElementById('confirmUpdateButton').style.display = 'none';
-                    document.getElementById('cancelUpdateButton').innerText = 'Ok';
                 }
             }
         };

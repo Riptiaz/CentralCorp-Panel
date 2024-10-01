@@ -87,7 +87,7 @@ function updateFiles() {
 function updateDatabase($pdo) {
     $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
-        return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
+        return ['success' => false, 'message' => json_encode("Fichier panel.sql introuvable.")];
     }
     
     $sqlContent = file_get_contents($sqlFilePath);
@@ -108,13 +108,14 @@ function updateDatabase($pdo) {
                 $newTables[] = $tableName;
 
                 if (!in_array($tableName, $existingTables)) {
-                    error_log("Création de la table : $tableName");
+                    // Utiliser un message temporaire
                     if ($pdo->exec($segment) === false) {
                         throw new Exception("Erreur lors de la création de la table '$tableName'.");
                     }
                 }
             } else {
-                error_log("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
+                // Utiliser un message temporaire
+                throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
             }
         }
 
@@ -134,7 +135,6 @@ function updateDatabase($pdo) {
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
                     $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                    error_log("Ajout de la colonne : $column à la table $tableName");
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
                     }
@@ -152,6 +152,7 @@ function updateDatabase($pdo) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();
@@ -161,7 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
             $dbUpdateResult = updateDatabase($pdo);
             if ($dbUpdateResult['success']) {
                 file_put_contents('version.txt', $latestVersion);
-                // Indiquer que la mise à jour est terminée ici
                 echo json_encode(['success' => true, 'message' => "Mise à jour terminée avec succès à la version $latestVersion."]);
             } else {
                 echo json_encode($dbUpdateResult);
