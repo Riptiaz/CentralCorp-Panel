@@ -442,27 +442,29 @@ require_once './ui/header.php';
   </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php if ($isNewVersionAvailable): ?>
-    <script>
-    Swal.fire({
-        title: 'Mise à jour disponible',
-        text: 'Voulez-vous mettre à jour maintenant?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Oui, mettre à jour!',
-        cancelButtonText: 'Non, annuler',
-        html: '<div id="updateMessage"></div>', // Ajout de la div ici
-    }).then((result) => {
-        if (result.isConfirmed) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'update/update.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
+<script>
+Swal.fire({
+    title: 'Mise à jour disponible',
+    text: 'Voulez-vous mettre à jour maintenant?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Oui, mettre à jour!',
+    cancelButtonText: 'Non, annuler',
+    html: '<div id="updateMessage"></div>', // Ajout de la div ici
+}).then((result) => {
+    if (result.isConfirmed) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'update/update.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                try {
                     var response = JSON.parse(xhr.responseText);
                     // Mettre à jour le message dans la div
                     document.getElementById('updateMessage').innerText = response.message;
+
                     if (response.success) {
-                        // Si la mise à jour est réussie, afficher le message de succès
+                        // Afficher le message de succès
                         Swal.fire({
                             title: 'Mise à jour réussie',
                             text: 'La base de données a été mise à jour avec succès.',
@@ -472,12 +474,29 @@ require_once './ui/header.php';
                         // Ajustez les boutons de l'alerte précédente
                         document.getElementById('confirmUpdateButton').style.display = 'none';
                         document.getElementById('cancelUpdateButton').innerText = 'Ok';
+                    } else {
+                        // Afficher le message d'erreur
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Fermer'
+                        });
                     }
+                } catch (error) {
+                    console.error("Erreur lors de l'analyse de la réponse JSON : ", error);
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue lors de la mise à jour.',
+                        icon: 'error',
+                        confirmButtonText: 'Fermer'
+                    });
                 }
-            };
-            xhr.send('update_button=1');
-        }
-    });
+            }
+        };
+        xhr.send('update_button=1');
+    }
+});
 </script>
 <?php endif; ?>
    <a href="#" class="scroll-to-top bg-gray-900 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out">
