@@ -154,15 +154,22 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 
 -- --------------------------------------------------------
 
---
 -- Structure de la table `test_db`
---
 
 CREATE TABLE `test_db` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `test` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- Déchargement des données de la table `test_db`
+
+INSERT INTO `test_db` (`id`, `test`) VALUES
+(1, 100),
+(2, 200),
+(3, 300),
+(4, 400),
+(5, 500);
 
 -- --------------------------------------------------------
 
