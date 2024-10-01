@@ -92,10 +92,10 @@ function updateDatabase($pdo) {
     
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
-    array_shift($tableSegments);
+    array_shift($tableSegments); // Supprimer la première partie qui est vide avant le premier 'CREATE TABLE'
     $newTables = [];
     
-    // Récupère les tables existantes
+    // Récupérer les tables existantes
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
     try {
@@ -103,15 +103,21 @@ function updateDatabase($pdo) {
         
         // 1. Création des nouvelles tables
         foreach ($tableSegments as $segment) {
+            $segment = 'CREATE TABLE ' . $segment; // Ajouter 'CREATE TABLE' car il a été supprimé par explode
             preg_match('/`(\w+)`/', $segment, $tableMatch);
-            $tableName = $tableMatch[1];
-            $newTables[] = $tableName;
+            if (isset($tableMatch[1])) {
+                $tableName = $tableMatch[1];
+                $newTables[] = $tableName;
 
-            // Vérifie si la table existe déjà
-            if (!in_array($tableName, $existingTables)) {
-                if ($pdo->exec("CREATE TABLE $tableName " . $segment) === false) {
-                    throw new Exception("Erreur lors de la création de la table '$tableName'.");
+                // Vérifier si la table existe déjà
+                if (!in_array($tableName, $existingTables)) {
+                    echo "Création de la table : $tableName\n"; // Debug : affiche la table en cours de création
+                    if ($pdo->exec($segment) === false) {
+                        throw new Exception("Erreur lors de la création de la table '$tableName'.");
+                    }
                 }
+            } else {
+                echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
             }
         }
 
@@ -120,20 +126,21 @@ function updateDatabase($pdo) {
             preg_match('/`(\w+)`/', $segment, $tableMatch);
             $tableName = $tableMatch[1];
 
-            // Récupère les colonnes existantes dans la table
+            // Récupérer les colonnes existantes dans la table
             $result = $pdo->query("SHOW COLUMNS FROM $tableName");
             $existingColumns = [];
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $existingColumns[$row['Field']] = $row['Type'];
             }
 
-            // Récupère les colonnes définies dans panel.sql
+            // Récupérer les colonnes définies dans panel.sql
             preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
             $newColumns = array_combine($matches[1], $matches[2]);
 
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
                     $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                    echo "Ajout de la colonne : $column à la table $tableName\n"; // Debug : affiche la colonne en cours d'ajout
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
                     }
@@ -144,6 +151,7 @@ function updateDatabase($pdo) {
         // 3. Suppression des anciennes tables et colonnes
         foreach ($existingTables as $existingTable) {
             if (!in_array($existingTable, $newTables)) {
+                echo "Suppression de la table : $existingTable\n"; // Debug : affiche la table en cours de suppression
                 if ($pdo->exec("DROP TABLE `$existingTable`") === false) {
                     throw new Exception("Erreur lors de la suppression de la table '$existingTable'.");
                 }
@@ -154,9 +162,10 @@ function updateDatabase($pdo) {
                     $currentColumns[] = $row['Field'];
                 }
 
-                // Supprime les colonnes qui ne sont plus dans la nouvelle définition SQL
+                // Supprimer les colonnes qui ne sont plus dans la nouvelle définition SQL
                 foreach ($currentColumns as $currentColumn) {
                     if (!isset($newColumns[$currentColumn])) {
+                        echo "Suppression de la colonne : $currentColumn de la table $existingTable\n"; // Debug : affiche la colonne en cours de suppression
                         if ($pdo->exec("ALTER TABLE `$existingTable` DROP COLUMN `$currentColumn`") === false) {
                             throw new Exception("Erreur lors de la suppression de la colonne '$currentColumn' dans la table '$existingTable'.");
                         }
@@ -173,6 +182,7 @@ function updateDatabase($pdo) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
     $latestVersion = getLatestVersion();
