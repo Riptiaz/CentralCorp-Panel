@@ -98,7 +98,7 @@ function updateDatabase($pdo) {
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
     try {
-        $pdo->beginTransaction();
+        $pdo->beginTransaction(); // Commencer la transaction ici
         
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment;
@@ -108,13 +108,11 @@ function updateDatabase($pdo) {
                 $newTables[] = $tableName;
 
                 if (!in_array($tableName, $existingTables)) {
-                    // Utiliser un message temporaire
                     if ($pdo->exec($segment) === false) {
                         throw new Exception("Erreur lors de la création de la table '$tableName'.");
                     }
                 }
             } else {
-                // Utiliser un message temporaire
                 throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
             }
         }
@@ -142,12 +140,13 @@ function updateDatabase($pdo) {
             }
         }
 
-        $pdo->commit();
+        $pdo->commit(); // Commit seulement si tout a réussi
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
         
     } catch (Exception $e) {
+        // Vérifier si une transaction est active avant de faire un rollback
         if ($pdo->inTransaction()) {
-            $pdo->rollBack();
+            $pdo->rollBack(); // Annuler seulement si la transaction est active
         }
         return ['success' => false, 'message' => $e->getMessage()];
     }
