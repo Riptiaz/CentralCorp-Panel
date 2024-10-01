@@ -160,8 +160,9 @@ INSERT INTO `roles` (`id`, `role_name`, `role_background`) VALUES
 --
 
 CREATE TABLE `test_db` (
-  `id` int(11) NOT NULL,
-  `test` int(11) DEFAULT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `test` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- --------------------------------------------------------
