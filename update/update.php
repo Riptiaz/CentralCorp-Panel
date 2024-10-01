@@ -131,7 +131,7 @@ function updateDatabase($pdo) {
             $tableName = $tableMatch[1];
 
             // Récupérer les colonnes existantes dans la table
-            $result = $pdo->query("SHOW COLUMNS FROM $tableName");
+            $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
             $existingColumns = [];
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $existingColumns[$row['Field']] = $row['Type'];
@@ -141,9 +141,10 @@ function updateDatabase($pdo) {
             preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
             $newColumns = array_combine($matches[1], $matches[2]);
 
+            // Ajouter les nouvelles colonnes
             foreach ($newColumns as $column => $type) {
                 if (!array_key_exists($column, $existingColumns)) {
-                    $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                    $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
                     echo "Ajout de la colonne : $column à la table $tableName\n"; // Debug : affiche la colonne en cours d'ajout
                     if ($pdo->exec($alterQuery) === false) {
                         throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
@@ -166,10 +167,10 @@ function updateDatabase($pdo) {
             $existingColumns = $pdo->query("SHOW COLUMNS FROM `$tableName`")->fetchAll(PDO::FETCH_COLUMN);
 
             foreach ($existingColumns as $existingColumn) {
+                // Supprimer uniquement les colonnes qui ne sont pas dans la nouvelle définition
                 if (!array_key_exists($existingColumn, $newColumns)) {
-                    // Supprimer les colonnes qui ne sont pas dans la nouvelle définition
-                    echo "Suppression de la colonne : $existingColumn de la table $tableName\n"; // Debug : affiche la colonne en cours de suppression
                     if ($existingColumn != 'id') { // Ne pas supprimer la colonne 'id'
+                        echo "Suppression de la colonne : $existingColumn de la table $tableName\n"; // Debug : affiche la colonne en cours de suppression
                         if ($pdo->exec("ALTER TABLE `$tableName` DROP COLUMN `$existingColumn`") === false) {
                             throw new Exception("Erreur lors de la suppression de la colonne '$existingColumn' dans la table '$tableName'.");
                         }
