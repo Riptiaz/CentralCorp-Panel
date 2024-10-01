@@ -449,8 +449,7 @@ Swal.fire({
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Oui, mettre à jour!',
-    cancelButtonText: 'Non, annuler',
-    html: '<div id="updateMessage"></div>', // Ajout de la div ici
+    cancelButtonText: 'Non, annuler'
 }).then((result) => {
     if (result.isConfirmed) {
         var xhr = new XMLHttpRequest();
@@ -460,15 +459,13 @@ Swal.fire({
             if (xhr.readyState == 4 && xhr.status == 200) {
                 try {
                     var response = JSON.parse(xhr.responseText);
-                    // Mettre à jour le message dans la div
-                    document.getElementById('updateMessage').innerText = response.message;
 
-                    // Afficher le message de succès ou d'erreur après avoir mis à jour le message
+                    // Vérifier la réponse et afficher le message approprié
                     if (response.success) {
                         // Afficher le message de succès
                         Swal.fire({
                             title: 'Mise à jour réussie',
-                            text: response.message, // Utilise le message de la réponse
+                            text: 'La mise à jour a été effectuée avec succès.',
                             icon: 'success',
                             confirmButtonText: 'Fermer'
                         });
@@ -476,7 +473,7 @@ Swal.fire({
                         // Afficher le message d'erreur
                         Swal.fire({
                             title: 'Erreur',
-                            text: response.message,
+                            text: 'Une erreur est survenue lors de la mise à jour.',
                             icon: 'error',
                             confirmButtonText: 'Fermer'
                         });
