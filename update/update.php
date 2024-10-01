@@ -98,8 +98,6 @@ function updateDatabase($pdo) {
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
     
     try {
-        $pdo->beginTransaction(); // Commencer la transaction
-        
         foreach ($tableSegments as $segment) {
             $segment = 'CREATE TABLE ' . $segment;
             preg_match('/`(\w+)`/', $segment, $tableMatch);
@@ -141,8 +139,6 @@ function updateDatabase($pdo) {
                 }
             }
         }
-
-        // Tout s'est bien passé, valider la transaction
         $pdo->commit();
         return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 
