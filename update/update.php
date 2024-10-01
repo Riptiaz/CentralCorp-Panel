@@ -103,15 +103,13 @@ function updateDatabase($pdo) {
         if (isset($tableMatch[1])) {
             $tableName = $tableMatch[1];
             $newTables[] = $tableName;
-
             if (!in_array($tableName, $existingTables)) {
-                echo "Création de la table : $tableName\n";
                 if ($pdo->exec($segment) === false) {
-                    return ['success' => false, 'message' => "Erreur lors de la création de la table '$tableName'."];
+                    throw new Exception("Erreur lors de la création de la table '$tableName'.");
                 }
             }
         } else {
-            echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
+            throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
         }
     }
 
