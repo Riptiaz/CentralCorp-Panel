@@ -84,36 +84,58 @@ function updateFiles() {
         return false;
     }
 }
-
 function updateDatabase($pdo) {
     $sqlFilePath = '../utils/panel.sql';
     if (!file_exists($sqlFilePath)) {
         return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
+
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
+    $newTables = [];
+
+    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    
+    foreach ($tableSegments as $segment) {
+        $segment = 'CREATE TABLE ' . $segment;
+        preg_match('/`(\w+)`/', $segment, $tableMatch);
+        if (isset($tableMatch[1])) {
+            $tableName = $tableMatch[1];
+            $newTables[] = $tableName;
+            if (!in_array($tableName, $existingTables)) {
+                if ($pdo->exec($segment) === false) {
+                    throw new Exception("Erreur lors de la création de la table '$tableName'.");
+                }
+            }
+        } else {
+            throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
+        }
+    }
 
     foreach ($tableSegments as $segment) {
         preg_match('/`(\w+)`/', $segment, $tableMatch);
         $tableName = $tableMatch[1];
-        $matches = [];
-        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
-        $newColumns = array_combine($matches[1], $matches[2]);
+
+        $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
         $existingColumns = [];
-        $result = $pdo->query("SHOW COLUMNS FROM $tableName");
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $existingColumns[$row['Field']] = $row['Type'];
         }
+
+        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
+        $newColumns = array_combine($matches[1], $matches[2]);
+
         foreach ($newColumns as $column => $type) {
             if (!array_key_exists($column, $existingColumns)) {
-                $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
                 if ($pdo->exec($alterQuery) === false) {
                     return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
                 }
             }
         }
-    }
+    }    
+
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
 

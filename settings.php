@@ -440,10 +440,10 @@ require_once './ui/header.php';
       z-index: 10;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <?php if ($isNewVersionAvailable): ?>
-    <script>
-        Swal.fire({
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if ($isNewVersionAvailable): ?>
+<script>
+Swal.fire({
     title: 'Mise à jour disponible',
     text: 'Voulez-vous mettre à jour maintenant?',
     icon: 'warning',
@@ -457,18 +457,38 @@ require_once './ui/header.php';
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-                document.getElementById('updateMessage').innerText = response.message;
-                if (response.success) {
-                    document.getElementById('confirmUpdateButton').style.display = 'none';
-                    document.getElementById('cancelUpdateButton').innerText = 'Ok';
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Mise à jour réussie',
+                            text: 'La mise à jour a été effectuée avec succès.',
+                            icon: 'success',
+                            confirmButtonText: 'Fermer'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: 'Une erreur est survenue lors de la mise à jour.',
+                            icon: 'error',
+                            confirmButtonText: 'Fermer'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de l'analyse de la réponse JSON : ", error);
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue lors de la mise à jour.',
+                        icon: 'error',
+                        confirmButtonText: 'Fermer'
+                    });
                 }
             }
         };
         xhr.send('update_button=1');
     }
 });
-    </script>
+</script>
 <?php endif; ?>
    <a href="#" class="scroll-to-top bg-gray-900 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
