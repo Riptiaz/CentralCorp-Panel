@@ -94,46 +94,67 @@ function updateDatabase($pdo) {
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
     $newTables = [];
+    
+    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    
+    $transactionActive = false;
 
-    foreach ($tableSegments as $segment) {
-        preg_match('/`(\w+)`/', $segment, $tableMatch);
-        $tableName = $tableMatch[1];
-        $newTables[] = $tableName;
+    try {
+        $pdo->beginTransaction();
+        $transactionActive = true;
+        
+        foreach ($tableSegments as $segment) {
+            $segment = 'CREATE TABLE ' . $segment;
+            preg_match('/`(\w+)`/', $segment, $tableMatch);
+            if (isset($tableMatch[1])) {
+                $tableName = $tableMatch[1];
+                $newTables[] = $tableName;
 
-        $matches = [];
-        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
-        $newColumns = array_combine($matches[1], $matches[2]);
-        
-        // Vérifiez d'abord si la table existe
-        $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-        
-        if (!in_array($tableName, $existingTables)) {
-            // Créez la table si elle n'existe pas
-            if ($pdo->exec($segment) === false) {
-                return ['success' => false, 'message' => "Erreur lors de la création de la table '$tableName'."];
+                if (!in_array($tableName, $existingTables)) {
+                    echo "Création de la table : $tableName\n";
+                    if ($pdo->exec($segment) === false) {
+                        throw new Exception("Erreur lors de la création de la table '$tableName'.");
+                    }
+                }
+            } else {
+                echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
             }
         }
-        
-        // Récupérez les colonnes existantes
-        $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
-        $existingColumns = [];
-        
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $existingColumns[$row['Field']] = $row['Type'];
-        }
-        
-        foreach ($newColumns as $column => $type) {
-            if (!array_key_exists($column, $existingColumns)) {
-                $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                if ($pdo->exec($alterQuery) === false) {
-                    return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
+
+        foreach ($tableSegments as $segment) {
+            preg_match('/`(\w+)`/', $segment, $tableMatch);
+            $tableName = $tableMatch[1];
+
+            $result = $pdo->query("SHOW COLUMNS FROM $tableName");
+            $existingColumns = [];
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $existingColumns[$row['Field']] = $row['Type'];
+            }
+
+            preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
+            $newColumns = array_combine($matches[1], $matches[2]);
+
+            foreach ($newColumns as $column => $type) {
+                if (!array_key_exists($column, $existingColumns)) {
+                    $alterQuery = "ALTER TABLE $tableName ADD COLUMN $column $type";
+                    echo "Ajout de la colonne : $column à la table $tableName\n";
+                    if ($pdo->exec($alterQuery) === false) {
+                        throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
+                    }
                 }
             }
         }
-    }
+        $pdo->commit();
+        return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 
-    return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
+    } catch (Exception $e) {
+        if ($transactionActive) {
+            $pdo->rollBack();
+        }
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
     $currentVersion = getCurrentVersion();
