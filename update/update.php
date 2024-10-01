@@ -89,107 +89,50 @@ function updateDatabase($pdo) {
     if (!file_exists($sqlFilePath)) {
         return ['success' => false, 'message' => "Fichier panel.sql introuvable."];
     }
-
+    
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
-    array_shift($tableSegments); // Supprimer la première partie qui est vide avant le premier 'CREATE TABLE'
+    array_shift($tableSegments);
     $newTables = [];
 
-    // Récupérer les tables existantes
-    $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($tableSegments as $segment) {
+        preg_match('/`(\w+)`/', $segment, $tableMatch);
+        $tableName = $tableMatch[1];
+        $newTables[] = $tableName;
 
-    $transactionActive = false;
-
-    try {
-        // Démarrer la transaction
-        $pdo->beginTransaction();
-        $transactionActive = true;
-
-        // 1. Création des nouvelles tables
-        foreach ($tableSegments as $segment) {
-            $segment = 'CREATE TABLE ' . $segment; // Ajouter 'CREATE TABLE' car il a été supprimé par explode
-            preg_match('/`(\w+)`/', $segment, $tableMatch);
-            if (isset($tableMatch[1])) {
-                $tableName = $tableMatch[1];
-                $newTables[] = $tableName;
-
-                // Vérifier si la table existe déjà
-                if (!in_array($tableName, $existingTables)) {
-                    echo "Création de la table : $tableName\n"; // Debug : affiche la table en cours de création
-                    if ($pdo->exec($segment) === false) {
-                        throw new Exception("Erreur lors de la création de la table '$tableName'.");
-                    }
-                }
-            } else {
-                echo "Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n";
+        $matches = [];
+        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
+        $newColumns = array_combine($matches[1], $matches[2]);
+        
+        // Vérifiez d'abord si la table existe
+        $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!in_array($tableName, $existingTables)) {
+            // Créez la table si elle n'existe pas
+            if ($pdo->exec($segment) === false) {
+                return ['success' => false, 'message' => "Erreur lors de la création de la table '$tableName'."];
             }
         }
-
-        // 2. Ajout des nouvelles colonnes dans les tables existantes
-        foreach ($tableSegments as $segment) {
-            preg_match('/`(\w+)`/', $segment, $tableMatch);
-            $tableName = $tableMatch[1];
-
-            // Récupérer les colonnes existantes dans la table
-            $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
-            $existingColumns = [];
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $existingColumns[$row['Field']] = $row['Type'];
-            }
-
-            // Récupérer les colonnes définies dans panel.sql
-            preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
-            $newColumns = array_combine($matches[1], $matches[2]);
-
-            // Ajouter les nouvelles colonnes
-            foreach ($newColumns as $column => $type) {
-                if (!array_key_exists($column, $existingColumns)) {
-                    $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                    echo "Ajout de la colonne : $column à la table $tableName\n"; // Debug : affiche la colonne en cours d'ajout
-                    if ($pdo->exec($alterQuery) === false) {
-                        throw new Exception("Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'.");
-                    }
+        
+        // Récupérez les colonnes existantes
+        $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
+        $existingColumns = [];
+        
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $existingColumns[$row['Field']] = $row['Type'];
+        }
+        
+        foreach ($newColumns as $column => $type) {
+            if (!array_key_exists($column, $existingColumns)) {
+                $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
+                if ($pdo->exec($alterQuery) === false) {
+                    return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
                 }
             }
         }
-
-        // 3. Suppression des anciennes colonnes
-        foreach ($newTables as $tableName) {
-            // Récupérer les colonnes définies dans panel.sql pour cette table
-            $segment = array_values(array_filter($tableSegments, function ($segment) use ($tableName) {
-                return strpos($segment, "`$tableName`") !== false;
-            }))[0];
-
-            preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
-            $newColumns = array_combine($matches[1], $matches[2]);
-
-            // Récupérer les colonnes existantes dans la base de données
-            $existingColumns = $pdo->query("SHOW COLUMNS FROM `$tableName`")->fetchAll(PDO::FETCH_COLUMN);
-
-            foreach ($existingColumns as $existingColumn) {
-                // Supprimer uniquement les colonnes qui ne sont pas dans la nouvelle définition
-                if (!array_key_exists($existingColumn, $newColumns)) {
-                    if ($existingColumn != 'id') { // Ne pas supprimer la colonne 'id'
-                        echo "Suppression de la colonne : $existingColumn de la table $tableName\n"; // Debug : affiche la colonne en cours de suppression
-                        if ($pdo->exec("ALTER TABLE `$tableName` DROP COLUMN `$existingColumn`") === false) {
-                            throw new Exception("Erreur lors de la suppression de la colonne '$existingColumn' dans la table '$tableName'.");
-                        }
-                    }
-                }
-            }
-        }
-
-        // Commit seulement après que tout se soit bien passé
-        $pdo->commit();
-        return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
-
-    } catch (Exception $e) {
-        // Rollback seulement si la transaction a été démarrée
-        if ($transactionActive) {
-            $pdo->rollBack();
-        }
-        return ['success' => false, 'message' => $e->getMessage()];
     }
+
+    return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_button'])) {
