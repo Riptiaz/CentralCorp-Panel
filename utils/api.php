@@ -66,9 +66,9 @@ $data = [
 ];
 
 if (!empty($options["server_img"])) {
-    $data["server_img"] = cleanImageUrl($options["server_img"], $baseURL);
+    $data["server_icon"] = cleanImageUrl($options["server_img"], $baseURL);
 } else {
-    $data["server_img"] = "";
+    $data["server_icon"] = "";
 }
 
 $sqlRoles = "SELECT * FROM roles";
@@ -128,7 +128,7 @@ echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 <?php
 function cleanImageUrl($imagePath, $baseURL) {
     $cleanPath = ltrim($imagePath, './');
-    return $baseURL . '/' . $cleanPath;
+    return $baseURL . '/' . str_replace('%2F', '/', rawurlencode($cleanPath));
 }
 
 function extractYouTubeVideoId($url) {
