@@ -50,7 +50,9 @@ $data = [
     "rpc_id" => $options["rpc_id"],
     "rpc_details" => $options["rpc_details"],
     "rpc_state" => $options["rpc_state"],
+    "rpc_large_image" => $options["rpc_large_image"],
     "rpc_large_text" => $options["rpc_large_text"],
+    "rpc_small_image" => $options["rpc_small_image"],
     "rpc_small_text" => $options["rpc_small_text"],
     "rpc_button1" => $options["rpc_button1"],
     "rpc_button1_url" => $options["rpc_button1_url"],
@@ -62,6 +64,7 @@ $data = [
     "alert_msg" => $options["alert_msg"],
     "video_activate" => (bool) $options["video_activation"],
     "video_url" => extractYouTubeVideoId($options["video_url"]),
+    "video_type" => $options["video_type"],
     "email_verified" => (bool) $options["email_verified"],
 ];
 
@@ -132,7 +135,11 @@ function cleanImageUrl($imagePath, $baseURL) {
 }
 
 function extractYouTubeVideoId($url) {
-    $pattern = '/(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.*v=|v=)?([a-zA-Z0-9_-]{11})/';
+    if (strpos($url, 'youtube.com/shorts/') !== false) {
+        $pattern = '/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/';
+    } else {
+        $pattern = '/(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.*v=|v=)?([a-zA-Z0-9_-]{11})/';
+    }
     preg_match($pattern, $url, $matches);
     return $matches[1] ?? "";
 }

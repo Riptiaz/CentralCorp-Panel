@@ -73,24 +73,27 @@ CREATE TABLE `options` (
   `rpc_id` varchar(100) NOT NULL,
   `rpc_details` text NOT NULL,
   `rpc_state` text NOT NULL,
+  `rpc_large_image` text NOT NULL,
   `rpc_large_text` text NOT NULL,
+  `rpc_small_image` text NOT NULL,
   `rpc_small_text` text NOT NULL,
   `rpc_button1` text NOT NULL,
   `rpc_button1_url` text NOT NULL,
   `rpc_button2` text NOT NULL,
   `rpc_button2_url` text NOT NULL,
   `whitelist_activation` int(11) NOT NULL DEFAULT 0,
-  `alert_activation` int(1) DEFAULT 0, -- Modifié de NULL à 0 pour éviter NULL
-  `alert_scroll` int(1) DEFAULT 0, -- Modifié de NULL à 0 pour éviter NULL
+  `alert_activation` int(1) DEFAULT 0,
+  `alert_scroll` int(1) DEFAULT 0,
   `alert_msg` text DEFAULT NULL,
-  `video_activation` int(11) DEFAULT 0, -- Modifié de NULL à 0 pour éviter NULL
+  `video_activation` int(11) DEFAULT 0,
   `video_url` varchar(255) DEFAULT NULL,
+  `video_type` varchar(10) DEFAULT NULL, -- New column added
   `email_verified` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_forge_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_text`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `alert_activation`, `alert_scroll`, `alert_msg`, `video_activation`, `video_url`, `email_verified`) VALUES
-(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 0, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '', '1.19.3-44.1.23', '1', '1.0.0', 'Derniere version du launcher', 1, 1, '', 'Ceci est du code', 'Riptiaz', 'https://conflictura.eu', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'Minecraft', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.eu', 0, 1, 0, '<p><strong><u>Découvrez la nouvelle boutique!</u></strong></p>', 1, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 0);
+INSERT INTO `options` (`id`, `maintenance`, `maintenance_message`, `minecraft_version`, `mods_enabled`, `file_verification`, `embedded_java`, `game_folder_name`, `server_name`, `server_ip`, `server_port`, `loader_type`, `loader_build_version`, `loader_forge_version`, `loader_activation`, `changelog_version`, `changelog_message`, `role`, `money`, `server_img`, `splash`, `splash_author`, `azuriom`, `rpc_activation`, `rpc_id`, `rpc_details`, `rpc_state`, `rpc_large_image`, `rpc_large_text`, `rpc_small_image`, `rpc_small_text`, `rpc_button1`, `rpc_button1_url`, `rpc_button2`, `rpc_button2_url`, `whitelist_activation`, `alert_activation`, `alert_scroll`, `alert_msg`, `video_activation`, `video_url`, `video_type`, `email_verified`) VALUES
+(1, 0, 'Le launcher est en maintenance, merci de relancer ultérieurement.', '1.19.3', 1, 1, 0, 'centralcorp', 'yourservername', 'yourservername.com', 25565, 'forge', '', '1.19.3-44.1.23', '1', '1.0.0', 'Derniere version du launcher', 1, 1, '', 'Ceci est du code', 'Riptiaz', 'https://conflictura.eu', 1, '1144257170561581097', 'Dans le launcher', 'En exploration', 'large',  'Minecraft', 'small', 'Multiplayer server', 'Discord', 'https://discord.gg/VCmNXHvf77', 'Site Web', 'https://conflictura.eu', 0, 1, 0, '<p><strong><u>Découvrez la nouvelle boutique!</u></strong></p>', 1, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'video', 0);
 
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

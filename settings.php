@@ -119,7 +119,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $rpc_id = $_POST["rpc_id"];
         $rpc_details = $_POST["rpc_details"];
         $rpc_state = $_POST["rpc_state"];
+        $rpc_large_image = $_POST["rpc_large_image"];
         $rpc_large_text = $_POST["rpc_large_text"];
+        $rpc_small_image = $_POST["rpc_small_image"];
         $rpc_small_text = $_POST["rpc_small_text"];
         $rpc_activation = isset($_POST["rpc_activation"]) ? 1 : 0;
         $rpc_button1 = $_POST["rpc_button1"];
@@ -127,11 +129,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $rpc_button2 = $_POST["rpc_button2"];
         $rpc_button2_url = $_POST["rpc_button2_url"];
         
-        $sql = "UPDATE options SET rpc_id = ?, rpc_details = ?, rpc_state = ?, rpc_large_text = ?, rpc_small_text = ?, rpc_activation = ?, rpc_button1 = ?, rpc_button1_url = ?, rpc_button2 = ?, rpc_button2_url = ?";
+        $sql = "UPDATE options SET rpc_id = ?, rpc_details = ?, rpc_state = ?, rpc_large_image = ?, rpc_large_text = ?, rpc_small_image = ?,rpc_small_text = ?, rpc_activation = ?, rpc_button1 = ?, rpc_button1_url = ?, rpc_button2 = ?, rpc_button2_url = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$rpc_id, $rpc_details, $rpc_state, $rpc_large_text, $rpc_small_text, $rpc_activation, $rpc_button1, $rpc_button1_url, $rpc_button2, $rpc_button2_url]);
+        $stmt->execute([$rpc_id, $rpc_details, $rpc_state, $rpc_large_image, $rpc_large_text, $rpc_small_image ,$rpc_small_text, $rpc_activation, $rpc_button1, $rpc_button1_url, $rpc_button2, $rpc_button2_url]);
 
-        $action = "Modification des paramètres RPC : ID $rpc_id, détails $rpc_details, état $rpc_state, texte large $rpc_large_text, texte petit $rpc_small_text, activation $rpc_activation, bouton 1 $rpc_button1, URL bouton 1 $rpc_button1_url, bouton 2 $rpc_button2, URL bouton 2 $rpc_button2_url";
+        $action = "Modification des paramètres RPC : ID $rpc_id, détails $rpc_details, état $rpc_state, ID image large $rpc_large_image, texte large $rpc_large_text, ID image small $rpc_small_image, texte petit $rpc_small_text, activation $rpc_activation, bouton 1 $rpc_button1, URL bouton 1 $rpc_button1_url, bouton 2 $rpc_button2, URL bouton 2 $rpc_button2_url";
         logAction($_SESSION['user_email'], $action);
     
     }elseif (isset($_POST["submit_splash_info"])) {
@@ -306,12 +308,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }elseif (isset($_POST["submit_video_settings"])) {
     $video_activation = isset($_POST["video_activation"]) ? 1 : 0;
     $video_url = $_POST["video_url"];
+    $video_type = extractYouTubeVideoType($video_url);
 
-    $sql = "UPDATE options SET video_activation = ?, video_url = ?";
+    $sql = "UPDATE options SET video_activation = ?, video_url = ?, video_type = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$video_activation, $video_url]);
+    $stmt->execute([$video_activation, $video_url, $video_type]);
 
-    $action = "Modification des paramètres vidéos : activation $video_activation, url $video_url";
+    $action = "Modification des paramètres vidéos : activation $video_activation, url $video_url, type $video_type";
     logAction($_SESSION['user_email'], $action);
 }
 }
@@ -427,6 +430,23 @@ function isNewVersionAvailable($currentVersion, $latestVersion) {
 $currentVersion = getCurrentVersion();
 $latestVersion = getLatestVersion();
 $isNewVersionAvailable = isNewVersionAvailable($currentVersion, $latestVersion);
+
+function extractYouTubeVideoType($url) {
+    if (strpos($url, 'youtube.com/shorts/') !== false) {
+        return 'short';
+    }
+    return 'video';
+}
+
+function extractYouTubeVideoId($url) {
+    if (strpos($url, 'youtube.com/shorts/') !== false) {
+        $pattern = '/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/';
+    } else {
+        $pattern = '/(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.*v=|v=)?([a-zA-Z0-9_-]{11})/';
+    }
+    preg_match($pattern, $url, $matches);
+    return $matches[1] ?? "";
+}
 
 ?>
 <?php

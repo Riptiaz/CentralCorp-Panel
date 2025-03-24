@@ -12,6 +12,7 @@
                         <label for="video_activation" class="block text-sm font-medium text-gray-400 mb-2">Activer la vidéo :</label>
                         <input type="checkbox" id="video_activation" name="video_activation" value="1" <?php if ($row["video_activation"] == 1) echo "checked"; ?>>
                     </div>
+                    <input type="hidden" id="video_type" name="video_type" value="<?php echo $row['video_type']; ?>">
                 </div>
                 <button type="submit" name="submit_video_settings" class="mt-6 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75">
                     <i class="bi bi-save"></i> Enregistrer
