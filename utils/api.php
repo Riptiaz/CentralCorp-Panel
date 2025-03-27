@@ -66,6 +66,8 @@ $data = [
     "video_url" => extractYouTubeVideoId($options["video_url"]),
     "video_type" => $options["video_type"],
     "email_verified" => (bool) $options["email_verified"],
+    "ram_min" => (int) $options["ram_min"] / 1024,
+    "ram_max" => (int) $options["ram_max"] / 1024,
 ];
 
 if (!empty($options["server_img"])) {

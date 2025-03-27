@@ -248,6 +248,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$embedded_java]);
 
+            $ram_min = $_POST["ram_min"];
+            $ram_max = $_POST["ram_max"];
+        
+            $sql = "UPDATE options SET ram_min = ?, ram_max = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$ram_min, $ram_max]);
+        
+            $action = "Modification des paramètres RAM : RAM min $ram_min MB, RAM max $ram_max MB";
+            logAction($_SESSION['user_email'], $action);
+
             $action = "Modification des paramètres généraux : rôle $role, argent $money, dossier de jeu $game_folder_name, Azuriom $azuriom, mods activés $mods, vérification des fichiers $file_verification, Java intégré $embedded_java";
             logAction($_SESSION['user_email'], $action);
 }elseif (isset($_POST["add_optional"])) {
@@ -317,6 +327,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = "Modification des paramètres vidéos : activation $video_activation, url $video_url, type $video_type";
     logAction($_SESSION['user_email'], $action);
 }
+
+
 }
 $sql = "SELECT * FROM options";
 $stmt = $pdo->query($sql);
