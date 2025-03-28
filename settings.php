@@ -28,6 +28,9 @@ if (file_exists($file)) {
     exit();
 }
 require_once './connexion_bdd.php';
+
+$pdo->exec("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'");
+
 require('./auth.php');
 if (isset($_POST['logout'])) {
     session_unset();
@@ -117,16 +120,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
     }elseif (isset($_POST["submit_rpc_settings"])) {
         $rpc_id = $_POST["rpc_id"];
-        $rpc_details = $_POST["rpc_details"];
-        $rpc_state = $_POST["rpc_state"];
+        $rpc_details = htmlspecialchars($_POST["rpc_details"], ENT_QUOTES, 'UTF-8');
+        $rpc_state = htmlspecialchars($_POST["rpc_state"], ENT_QUOTES, 'UTF-8');
         $rpc_large_image = $_POST["rpc_large_image"];
-        $rpc_large_text = $_POST["rpc_large_text"];
+        $rpc_large_text = htmlspecialchars($_POST["rpc_large_text"], ENT_QUOTES, 'UTF-8');
         $rpc_small_image = $_POST["rpc_small_image"];
-        $rpc_small_text = $_POST["rpc_small_text"];
+        $rpc_small_text = htmlspecialchars($_POST["rpc_small_text"], ENT_QUOTES, 'UTF-8');
         $rpc_activation = isset($_POST["rpc_activation"]) ? 1 : 0;
-        $rpc_button1 = $_POST["rpc_button1"];
+        $rpc_button1 = htmlspecialchars($_POST["rpc_button1"], ENT_QUOTES, 'UTF-8');
         $rpc_button1_url = $_POST["rpc_button1_url"];
-        $rpc_button2 = $_POST["rpc_button2"];
+        $rpc_button2 = htmlspecialchars($_POST["rpc_button2"], ENT_QUOTES, 'UTF-8');
         $rpc_button2_url = $_POST["rpc_button2_url"];
         
         $sql = "UPDATE options SET rpc_id = ?, rpc_details = ?, rpc_state = ?, rpc_large_image = ?, rpc_large_text = ?, rpc_small_image = ?,rpc_small_text = ?, rpc_activation = ?, rpc_button1 = ?, rpc_button1_url = ?, rpc_button2 = ?, rpc_button2_url = ?";

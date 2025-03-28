@@ -8,6 +8,7 @@ if (!file_exists($configFilePath)) {
 }
 
 require_once '../connexion_bdd.php';
+$pdo->exec("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'");
 
 $domain = $_SERVER['HTTP_HOST'];
 $baseURL = 'https://' . $domain;
@@ -127,7 +128,7 @@ while ($rowWhitelist_role = $stmtWhitelist_role->fetch(PDO::FETCH_ASSOC)) {
 $data["whitelist_roles"] = $whitelist_role;
 
 header('Content-Type: application/json');
-echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ?>
 
 <?php
