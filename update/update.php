@@ -93,53 +93,47 @@ function updateDatabase($pdo) {
     $sqlContent = file_get_contents($sqlFilePath);
     $tableSegments = explode('CREATE TABLE', $sqlContent);
     array_shift($tableSegments);
-    $newTables = [];
 
     $existingTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-    
+
     foreach ($tableSegments as $segment) {
         $segment = 'CREATE TABLE ' . $segment;
         preg_match('/`(\w+)`/', $segment, $tableMatch);
         if (isset($tableMatch[1])) {
             $tableName = $tableMatch[1];
-            $newTables[] = $tableName;
+
+            // Ensure table exists
             if (!in_array($tableName, $existingTables)) {
                 if ($pdo->exec($segment) === false) {
                     throw new Exception("Erreur lors de la création de la table '$tableName'.");
+                }
+            }
+
+            // Update table collation to utf8mb4_general_ci
+            $pdo->exec("ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+
+            // Check and update column collations
+            $result = $pdo->query("SHOW FULL COLUMNS FROM `$tableName`");
+            $existingColumns = [];
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $existingColumns[$row['Field']] = $row['Collation'];
+            }
+
+            preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
+            $newColumns = array_combine($matches[1], $matches[2]);
+
+            foreach ($newColumns as $column => $type) {
+                if (isset($existingColumns[$column]) && $existingColumns[$column] !== 'utf8mb4_general_ci') {
+                    $alterQuery = "ALTER TABLE `$tableName` MODIFY `$column` $type CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
+                    if ($pdo->exec($alterQuery) === false) {
+                        return ['success' => false, 'message' => "Erreur lors de la modification de la collation de la colonne '$column' dans la table '$tableName'."];
+                    }
                 }
             }
         } else {
             throw new Exception("Impossible d'extraire le nom de la table pour le segment suivant : \n$segment\n");
         }
     }
-
-    foreach ($tableSegments as $segment) {
-        preg_match('/`(\w+)`/', $segment, $tableMatch);
-        $tableName = $tableMatch[1];
-
-        $result = $pdo->query("SHOW COLUMNS FROM `$tableName`");
-        $existingColumns = [];
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $existingColumns[$row['Field']] = $row['Type'];
-        }
-
-        preg_match_all('/`(\w+)` (\w+\([\d,]+\)|\w+(\(\d+\))?)/', $segment, $matches);
-        $newColumns = array_combine($matches[1], $matches[2]);
-
-        foreach ($newColumns as $column => $type) {
-            if (!array_key_exists($column, $existingColumns)) {
-                $alterQuery = "ALTER TABLE `$tableName` ADD COLUMN `$column` $type";
-                if ($pdo->exec($alterQuery) === false) {
-                    return ['success' => false, 'message' => "Erreur lors de l'ajout de la colonne '$column' à la table '$tableName'."];
-                }
-            }
-        }
-
-        $pdo->exec("ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-        foreach ($newColumns as $column => $type) {
-            $pdo->exec("ALTER TABLE `$tableName` MODIFY `$column` $type CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-        }
-    }    
 
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
 }
