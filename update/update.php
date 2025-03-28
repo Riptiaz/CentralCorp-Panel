@@ -134,6 +134,11 @@ function updateDatabase($pdo) {
                 }
             }
         }
+
+        $pdo->exec("ALTER TABLE `$tableName` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        foreach ($newColumns as $column => $type) {
+            $pdo->exec("ALTER TABLE `$tableName` MODIFY `$column` $type CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        }
     }    
 
     return ['success' => true, 'message' => "Base de données mise à jour avec succès."];
