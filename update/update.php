@@ -16,7 +16,7 @@ function getCurrentVersion() {
 }
 
 function getLatestVersion() {
-    $url = 'https://raw.githubusercontent.com/Riptiaz/CentralCorp-Panel/main/update/version.txt';
+    $url = 'https://raw.githubusercontent.com/CentralCorp/CentralCorp-Panel/main/update/version.txt';
     $opts = [
         "http" => [
             "method" => "GET",
@@ -33,7 +33,7 @@ function isNewVersionAvailable($currentVersion, $latestVersion) {
 
 function updateFiles() {
     $zipFile = 'update.zip';
-    $url = 'https://github.com/Riptiaz/CentralCorp-Panel/archive/refs/heads/main.zip';
+    $url = 'https://github.com/CentralCorp/CentralCorp-Panel/archive/refs/heads/main.zip';
 
     file_put_contents($zipFile, fopen($url, 'r'));
 
